@@ -49,56 +49,6 @@ const markInfoConstruct = (markName, storeName, url, space) => {
 
 
 /**
- * 在mark.json中标记图片
- * @param {ctx}              ctx
- * @param {mark.json存储位置} markFilePath
- * @param {图片标记名称}      markName 
- * @param {图片存储名称}      storeName 
- * @param {图片外链}          url
- * @param {图片备份位置}      backupLocation
- */
-async function markImage(ctx, markFilePath, markName, storeName, url, space){
-    fs.readFile(markFilePath, function(err, data){
-        if(err){
-            ctx.log.error(`[Autobackup]读取mark.json文件时出错`)
-        }
-        else if(data){
-            var markInfo = JSON.parse(data.toString())
-            markInfo.push(markInfoConstruct(markName, storeName, url, space))
-            fs.writeFileSync(markFilePath, JSON.stringify(markInfo))
-        }
-    })
-}
-
-
-/**
- * 初始化存储环境
- * @param {mark.json存储路径} markFilePath 
- * @param {图片备份文件夹}    imagePath 
- */
-async function InitEnv(markFilePath, imagePath, space){
-    if(space == "local"){
-        mkdirs(imagePath, function(){})
-        fs.readFile(markFilePath, function(err, data){
-            if(err){
-                if(err.code === "ENOENT"){
-                    try{
-                        fs.writeFile(markFilePath, '[]', function(err){})
-                    }
-                    catch(err){
-                        ctx.log.error("[Autobackup]mark.json不存在且程序在创建时失败, 请尝试手动创建！")
-                    }
-                }
-                else{
-                    ctx.log.error(`[Autobackup]${err}`)
-                }
-            }
-        })
-    }
-}
-
-
-/**
  * 备份图片到本地
  * @param {ctx}                     ctx
  * @param {图片备份文件夹}           imagePath 
@@ -151,27 +101,45 @@ const handle = async (ctx) => {
     }   
     else{
         // 初始化存储环境
-        await InitEnv(markFilePath, imagePath, space)
+        mkdirs(imagePath, function(){})
 
         // 加载mark.json文件
         // 异步存取mark.json容易造成数据丢失
-        
-
-        // 备份图片
-        var imgList = ctx.output
-        for(var i in imgList){
-            try{
-                if(space == 'local'){
-                    backupInLocal(ctx, imagePath, imgList[i])
+        fs.readFile(markFilePath, function(err, data){
+            ctx.log.info(data)
+            if(err){
+                if(err.code === "ENOENT"){
+                    fs.writeFileSync(markFilePath, '[]', function(){})
                 }
-                else{}
-                await markImage(ctx, markFilePath, imgList[i].fileName, imgList[i].fileName, imgList[i].imgUrl, space)
-                ctx.log.log.success(`[Autobackup]图片备份成功(${imgList[i].fileName})`)
+                else{
+                    ctx.log.error(`[Autobackup]加载 mark.json 文件失败`)
+                }
             }
-            catch(err){
-                ctx.log.error(`[Autobackup]图片备份失败:${imgList[i].fileName}`)
+            else if(data){
+                // 加载 mark.json
+                var markInfo =  JSON.parse(data.toString())
+
+                // 备份图片
+                var imgList = ctx.output
+                for(var i in imgList){
+                    try{
+                        if(space == 'local'){
+                            backupInLocal(ctx, imagePath, imgList[i])
+                        }
+                        else{}
+                        markInfo.push(markInfoConstruct(imgList[i].fileName, imgList[i].fileName, imgList[i].imgUrl, space))
+                    }
+                    catch(err){
+                        ctx.log.error(`[Autobackup]图片备份失败:${imgList[i].fileName}`)
+                    }
+                }
+
+                // 写入 mark.json
+                ctx.log.info(markInfo)
+                fs.writeFileSync(markFilePath, JSON.stringify(markInfo))
             }
-        }
+        })
+        ctx.log.info("end")
     }    
     return ctx
 }
@@ -184,8 +152,8 @@ module.exports = (ctx) => {
         // 初始化配置文件
         ctx.saveConfig({
             'picgo-plugin-autobackup':{
-                markFilePath: "",
-                imagePath: "",
+                markFilePath: "D:/Picgo/Autobackup/mark.json",
+                imagePath: "D:/Picgo/Autobackup/Images",
                 space: "local"
             }
         })
