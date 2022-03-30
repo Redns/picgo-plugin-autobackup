@@ -89,6 +89,43 @@ function backupInLocal(ctx, imagePath, imgObject){
 }  
 
 
+/**
+ * 获取图片链接
+ */
+const afterUploadPlugins = {
+    handle(ctx){
+        // 加载配置文件
+        const userConfig = ctx.getConfig('picgo-plugin-autobackup')
+        var markFilePath = userConfig.markFilePath                      // mark.json路径
+        var imagePath = userConfig.imagePath                            // 图片备份文件夹
+        var space = userConfig.space                                    // 存储空间
+        
+        // 加载mark.json文件
+        // 异步存取mark.json容易造成数据丢失
+        fs.readFile(markFilePath, function(err, data){
+            ctx.log.info(data.toString())
+            // 加载 mark.json
+            var markInfo =  JSON.parse(data.toString())
+
+            // 备份图片
+            var imgList = ctx.output
+            for(var i in imgList){
+                markInfo.images[parseInt(markInfo.total) + parseInt(i)].url = imgList[i].imgUrl
+            }
+            markInfo.total = markInfo.total + imgList.length
+
+            // 写入 mark.json
+            fs.writeFileSync(markFilePath, JSON.stringify(markInfo))
+        })
+    }
+}
+
+
+/**
+ * 部分uploader在上传图片后会清除图片数据, 因此选择在uploader前备份图片, 而在uploader后获取链接
+ * @param {*} ctx 
+ * @returns 
+ */
 const handle = async (ctx) => {
     // 加载配置文件
     const userConfig = ctx.getConfig('picgo-plugin-autobackup')
@@ -106,10 +143,9 @@ const handle = async (ctx) => {
         // 加载mark.json文件
         // 异步存取mark.json容易造成数据丢失
         fs.readFile(markFilePath, function(err, data){
-            ctx.log.info(data)
             if(err){
                 if(err.code === "ENOENT"){
-                    fs.writeFileSync(markFilePath, '[]', function(){})
+                    fs.writeFileSync(markFilePath, "{\"total\":0,\"images\":[]}", function(){})
                 }
                 else{
                     ctx.log.error(`[Autobackup]加载 mark.json 文件失败`)
@@ -127,7 +163,7 @@ const handle = async (ctx) => {
                             backupInLocal(ctx, imagePath, imgList[i])
                         }
                         else{}
-                        markInfo.push(markInfoConstruct(imgList[i].fileName, imgList[i].fileName, imgList[i].imgUrl, space))
+                        markInfo.images.push(markInfoConstruct(imgList[i].fileName, imgList[i].fileName, "", space))
                     }
                     catch(err){
                         ctx.log.error(`[Autobackup]图片备份失败:${imgList[i].fileName}`)
@@ -135,11 +171,9 @@ const handle = async (ctx) => {
                 }
 
                 // 写入 mark.json
-                ctx.log.info(markInfo)
                 fs.writeFileSync(markFilePath, JSON.stringify(markInfo))
             }
         })
-        ctx.log.info("end")
     }    
     return ctx
 }
@@ -163,10 +197,12 @@ module.exports = (ctx) => {
             handle,
             config: pluginConfig
         })
+        ctx.helper.afterUploadPlugins.register('autobackup', afterUploadPlugins)
     }
     return {
         register,
         config: pluginConfig,
-        beforeUploadPlugins: 'autobackup'
+        beforeUploadPlugins: 'autobackup',
+        afterUploadPlugins: 'autobackup'
     }
 }
