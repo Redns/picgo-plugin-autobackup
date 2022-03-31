@@ -1,6 +1,6 @@
 # picgo-plugin-autobackup
 
-![version: v1.3.6 (shields.io)](https://img.shields.io/badge/version-v1.3.6-green)
+![version: v1.3.7 (shields.io)](https://img.shields.io/badge/version-v1.3.7-green)
 
 <br>
 
@@ -36,8 +36,8 @@
    ![image-20220330213725702](http://jing-image.test.upcdn.net/image-20220330213725702.png)
 
    - `备份空间`：用以区分备份的位置 (本地、云盘、……)，目前仅支持本地 (local)
-   - `mark文件路径`：用于存储备份图片的相关信息以便后期恢复、重传
-   - `备份路径`：图片备份路径
+   - `mark文件路径`：用于存储备份图片的相关信息以便后期恢复、重传，默认路径为 `{picgo安装目录}/mark.json`
+   - `备份路径`：图片备份路径，默认存储路径为 `{picgo安装目录}/Images`
 
    <br>
 
