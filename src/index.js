@@ -186,8 +186,8 @@ module.exports = (ctx) => {
         // 初始化配置文件
         ctx.saveConfig({
             'picgo-plugin-autobackup':{
-                markFilePath: "D:/Picgo/Autobackup/mark.json",
-                imagePath: "D:/Picgo/Autobackup/Images",
+                markFilePath: "mark.json",
+                imagePath: "Images",
                 space: "local"
             }
         })

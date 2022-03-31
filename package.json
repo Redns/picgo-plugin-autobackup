@@ -1,6 +1,6 @@
 {
   "name": "picgo-plugin-autobackup",
-  "version": "1.3.6",
+  "version": "1.3.7",
   "description": "图片自动备份插件",
   "main": "src/index.js",
   "publishConfig": {
