@@ -1,6 +1,10 @@
 # picgo-plugin-autobackup
 
+<<<<<<< HEAD
 ![version: v1.4.9 (shields.io)](https://img.shields.io/badge/version-v1.4.9-green)
+=======
+![version: v1.3.7 (shields.io)](https://img.shields.io/badge/version-v1.3.7-green)
+>>>>>>> 3fc5cea5e5230d027debd7ad95fa9e136eb54548
 
 <br>
 
@@ -103,6 +107,7 @@
 
 请将插件更新至 `v1.3.7` 版本及以上，详情参见 [Issue](https://github.com/Redns/picgo-plugin-autobackup/issues/1)
 
+<<<<<<< HEAD
 <br>
 
 ### 2. 备份至坚果云显示 "StatusCodeError 401"
@@ -116,6 +121,11 @@
 1. [点击这里](https://www.jianguoyun.com/#/safety) 前往坚果云安全选项界面，点击 `添加应用`
 
    ![image-20220402160849678](http://jing-image.test.upcdn.net/image-20220402160849678.png)
+=======
+   - `备份空间`：用以区分备份的位置 (本地、云盘、……)，目前仅支持本地 (local)
+   - `mark文件路径`：用于存储备份图片的相关信息以便后期恢复、重传，默认路径为 `{picgo安装目录}/mark.json`
+   - `备份路径`：图片备份路径，默认存储路径为 `{picgo安装目录}/Images`
+>>>>>>> 3fc5cea5e5230d027debd7ad95fa9e136eb54548
 
    <br>
 
