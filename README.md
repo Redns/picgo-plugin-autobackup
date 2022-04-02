@@ -1,6 +1,7 @@
 # picgo-plugin-autobackup
 
 ![version: v1.4.9 (shields.io)](https://img.shields.io/badge/version-v1.4.9-green)
+
 <br>
 
 ## 简介
