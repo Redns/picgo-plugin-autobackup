@@ -101,6 +101,7 @@
 ### 1. 图片备份路径下只有一个名为 "undefined" 的文件
 
 请将插件更新至 `v1.3.7` 版本及以上，详情参见 [Issue](https://github.com/Redns/picgo-plugin-autobackup/issues/1)
+
 <br>
 
 ### 2. 备份至坚果云显示 "StatusCodeError 401"
