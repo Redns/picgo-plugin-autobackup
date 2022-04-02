@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:recovery.View"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:model="clr-namespace:recovery.ViewModel" d:DataContext="{d:DesignInstance Type=model:MainViewModel}"
         mc:Ignorable="d"
-        Title="Recovery" Height="600" Width="950" Icon="/Assets/Images/icon.png"
+        Title="Recovery" Height="650" Width="950" Icon="/Assets/Images/icon.png"
         FontFamily="Microsoft YaHei" FontWeight="Medium" FontSize="12"
         WindowStartupLocation="CenterScreen" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}"
         TextOptions.TextFormattingMode="Display" 
@@ -60,7 +61,7 @@
                 <RowDefinition Height="50"/>
                 <RowDefinition Height="100"/>
                 <RowDefinition/>
-                <RowDefinition Height="100"/>
+                <RowDefinition Height="80"/>
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Background="#FFF9F9F9" BorderBrush="#DDD" BorderThickness="0 0 0 0.5"
                     MouseLeftButtonDown="StackPanel_MouseLeftButtonDown" CornerRadius="10 10 0 0">
@@ -107,28 +108,46 @@
                 <TextBox
                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
                     VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Height="50" Width="280" Margin="20 0" FontSize="14"
+                    Height="50" Width="280" Margin="20 0" FontSize="12"
                     materialDesign:TextFieldAssist.CharacterCounterVisibility="{Binding Path=IsChecked, ElementName=MaterialDesignOutlinedTextBoxTextCountComboBox, Converter={StaticResource BooleanToVisibilityConverter}}"
-                    materialDesign:HintAssist.Hint="Mark文件路径" />
+                    materialDesign:HintAssist.Hint="Mark文件路径" Text="{Binding mainModel.MarkfilePath}"/>
                 <Button
                     Style="{StaticResource MaterialDesignPaperButton}"
                     VerticalAlignment="Center" HorizontalAlignment="Right" Width="80" Height="50" Margin="70 0"
                     ToolTip="Resource name: MaterialDesignPaperButton"
-                    Content="选 择"/>
+                    Content="选 择" Command="{Binding ChooseMarkfileCommand}"/>
                 <TextBox
                     Grid.Column="1"
                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
                     VerticalAlignment="Center" HorizontalAlignment="Left"
-                    Height="50" Width="280" Margin="50 0" FontSize="14"
+                    Height="50" Width="280" Margin="50 0" FontSize="12"
                     materialDesign:TextFieldAssist.CharacterCounterVisibility="{Binding Path=IsChecked, ElementName=MaterialDesignOutlinedTextBoxTextCountComboBox, Converter={StaticResource BooleanToVisibilityConverter}}"
-                    materialDesign:HintAssist.Hint="文件导出路径" />
+                    materialDesign:HintAssist.Hint="文件导出路径" Text="{Binding mainModel.OutputDir}"/>
                 <Button
                     Grid.Column="1"
                     Style="{StaticResource MaterialDesignPaperButton}"
                     VerticalAlignment="Center" HorizontalAlignment="Right" Width="80" Height="50" Margin="40 0"
                     ToolTip="Resource name: MaterialDesignPaperButton"
-                    Content="选 择"/>
+                    Content="选 择" Command="{Binding ChooseOutputDirCommand}"/>
             </Grid>
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <ProgressBar
+                    Style="{StaticResource MaterialDesignCircularProgressBar}"
+                    Value="0" IsIndeterminate="{Binding mainModel.Running}" />
+                <Grid Grid.Column="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="{Binding mainModel.RunningMsg}" VerticalAlignment="Bottom" Margin="0 10"/>
+                    <ProgressBar Grid.Row="1" VerticalAlignment="Top" Value="{Binding mainModel.RunningPercent}" Margin="0 0 40 0"/>
+                </Grid>
+            </Grid>
+            
         </Grid>
     </Border>
 </Window>

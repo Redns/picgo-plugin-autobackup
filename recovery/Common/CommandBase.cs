@@ -7,7 +7,7 @@ using System.Windows.Input;
 
 namespace recovery.Common
 {
-    internal class CommandBase : ICommand
+    public class CommandBase : ICommand
     {
         // 事件
         public event EventHandler? CanExecuteChanged;
