@@ -1,7 +1,6 @@
 # picgo-plugin-autobackup
 
 ![version: v1.4.9 (shields.io)](https://img.shields.io/badge/version-v1.4.9-green)
-
 <br>
 
 ## 简介
@@ -14,7 +13,6 @@
 
 - 支持自定义备份位置 (目前支持本地备份、坚果云备份 )
 - 支持自定义备份文件夹
-
 <br>
 
 ## 环境搭建
