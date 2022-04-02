@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Assets\Images\icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Assets\Fonts\" />
   </ItemGroup>
 
@@ -16,9 +20,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Assets\Images\icon.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
+    <Resource Include="Assets\Images\Icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>
