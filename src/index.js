@@ -1,3 +1,4 @@
+const { dir } = require('console')
 var fs = require('fs')
 var path = require('path')
 
@@ -11,24 +12,16 @@ const pluginConfig = (ctx) => {
             name: 'space',
             type: 'list',
             alias: '备份空间',
-            choices: ["local"],
+            choices: ["Local", "NutStore"],
             default: userConfig.space || '',
             message: '备份空间不能为空',
             required: true
         },
         {
-            name: 'markFilePath',
+            name: 'markFilepath',
             type: 'input',
             alias: 'mark文件路径',
-            default: userConfig.markFilePath || '',
-            message: '请勿选择系统盘路径',
-            required: true
-        },
-        {
-            name: 'imagePath',
-            type: 'input',
-            alias: '备份路径',
-            default: userConfig.imagePath || '',
+            default: userConfig.markFilepath || '',
             message: '请勿选择系统盘路径',
             required: true
         }
@@ -37,13 +30,12 @@ const pluginConfig = (ctx) => {
 }
 
 
-const markInfoConstruct = (markName, storeName, url, space) => {
+const markInfoConstruct = (space, path, url) => {
     return {
-        'markName': markName,
-        'storeName': storeName,
+        'space': space,
+        'path': path,
         'url': url,
-        'time': Date.now(),
-        'space': space
+        'time': Date.now()
     }
 }
 
@@ -96,27 +88,68 @@ const afterUploadPlugins = {
     handle(ctx){
         // 加载配置文件
         const userConfig = ctx.getConfig('picgo-plugin-autobackup')
-        var markFilePath = userConfig.markFilePath                      // mark.json路径
-        var imagePath = userConfig.imagePath                            // 图片备份文件夹
-        var space = userConfig.space                                    // 存储空间
+        const settings = ctx.getConfig('picgo-plugin-autobackup-settings')                
         
-        // 加载mark.json文件
-        // 异步存取mark.json容易造成数据丢失
-        fs.readFile(markFilePath, function(err, data){
-            ctx.log.info(data.toString())
-            // 加载 mark.json
-            var markInfo =  JSON.parse(data.toString())
 
-            // 备份图片
-            var imgList = ctx.output
-            for(var i in imgList){
-                markInfo.images[parseInt(markInfo.total) + parseInt(i)].url = imgList[i].imgUrl
+        /**
+         * 加载mark.json文件
+         */
+        fs.readFile(userConfig.markFilepath, function(err, data){
+            if(err){
+                if(err.code === "ENOENT"){
+                    fs.writeFileSync(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", function(){})
+                }
+                else{
+                    ctx.log.error(`[Autobackup]加载 mark.json 文件失败`)
+                }
             }
-            markInfo.total = markInfo.total + imgList.length
+            else if(data){
+                // 加载标记文件
+                var markInfo =  JSON.parse(data.toString())
 
-            // 写入 mark.json
-            fs.writeFileSync(markFilePath, JSON.stringify(markInfo))
+                // 修改标记文件
+                var imgList = ctx.output
+                for(var i in imgList){
+                    if(userConfig.space == "Local"){
+                        markInfo.images.push(markInfoConstruct("Local", `${settings.local.imagePath}/${imgList[i].fileName}`, imgList[i].imgUrl))
+                    }
+                    else if(userConfig.space == "NutStore"){
+                        markInfo.images.push(markInfoConstruct("NutStore", `${settings.nutstore.imagePath}/${imgList[i].fileName}`, imgList[i].imgUrl))
+                    }
+                }
+                markInfo.total = markInfo.total + imgList.length
+
+                // 写入标记文件
+                fs.writeFileSync(userConfig.markFilepath, JSON.stringify(markInfo))
+            }
         })
+    }
+}
+
+
+/**
+ * 构建坚果云上传文件请求
+ * @param {图片备份文件夹}      imagePath 
+ * @param {图片上传数组对象}    imageObject 
+ * @param {坚果云用户名}        username 
+ * @param {坚果云应用密码}      password 
+ * @returns 
+ */
+const NutStoreUploadConstruct = (imagePath, imageObject, username, password) => {
+    // 读取图片数据
+    var img = imageObject.buffer
+    if((!img) && (imageObject.base64Image)){
+        img = Buffer.from(imageObject.base64Image, 'base64')
+    }
+
+    return {
+        'method': 'PUT',
+        'url': `https://dav.jianguoyun.com/dav/${imagePath}/${imageObject.fileName}`,
+        'headers': {
+          'Authorization': `Basic ${Buffer.from(`${username}:${password}`, 'utf-8').toString('base64')}`,
+          'Content-Type': `image/${imageObject.extname.substring(1)}`
+        },
+        body: img
     }
 }
 
@@ -129,53 +162,150 @@ const afterUploadPlugins = {
 const handle = async (ctx) => {
     // 加载配置文件
     const userConfig = ctx.getConfig('picgo-plugin-autobackup')
-    var markFilePath = userConfig.markFilePath                      // mark.json路径
-    var imagePath = userConfig.imagePath                            // 图片备份文件夹
-    var space = userConfig.space                                    // 存储空间
+    const settings = ctx.getConfig('picgo-plugin-autobackup-settings')
 
     if (!userConfig) {
         throw new Error('请配置相关信息!')
     }   
     else{
-        // 初始化存储环境
-        mkdirs(imagePath, function(){})
+        if(settings.local.imagePath != ""){
+            mkdirs(settings.local.imagePath, function(){})
+        }
 
-        // 加载mark.json文件
-        // 异步存取mark.json容易造成数据丢失
-        fs.readFile(markFilePath, function(err, data){
-            if(err){
-                if(err.code === "ENOENT"){
-                    fs.writeFileSync(markFilePath, "{\"total\":0,\"images\":[]}", function(){})
-                }
-                else{
-                    ctx.log.error(`[Autobackup]加载 mark.json 文件失败`)
-                }
-            }
-            else if(data){
-                // 加载 mark.json
-                var markInfo =  JSON.parse(data.toString())
 
-                // 备份图片
-                var imgList = ctx.output
-                for(var i in imgList){
-                    try{
-                        if(space == 'local'){
-                            backupInLocal(ctx, imagePath, imgList[i])
+        /**
+         * 备份图片
+         */
+        var imgList = ctx.output
+        for(var i in imgList){
+            try{
+                if(userConfig.space == "Local"){
+                    // 备份至本地文件夹
+                    backupInLocal(ctx, settings.local.imagePath, imgList[i])
+                }
+                else if(userConfig.space == "NutStore"){
+                    // 备份至坚果云
+                    const NutStoreUploadRequest = NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)
+                    ctx.Request.request(NutStoreUploadRequest, function (error, response) {
+                        if(error){
+                            ctx.log.error(`[Autobackup]图片上传至坚果云失败---${imagePath}/${imageObject.fileName}`)
                         }
-                        else{}
-                        markInfo.images.push(markInfoConstruct(imgList[i].fileName, imgList[i].fileName, "", space))
-                    }
-                    catch(err){
-                        ctx.log.error(`[Autobackup]图片备份失败:${imgList[i].fileName}`)
-                    }
+                    })
                 }
-
-                // 写入 mark.json
-                fs.writeFileSync(markFilePath, JSON.stringify(markInfo))
             }
-        })
+            catch(err){
+                ctx.log.error(`[Autobackup]图片备份失败:${imgList[i].fileName}`)
+            }
+        }
     }    
     return ctx
+}
+
+
+const guiMenu = ctx => {
+    return [
+        {
+            label: '配置本地备份',
+            async handle (ctx, guiApi) {
+                // 加载本地设置
+                const settings = ctx.getConfig('picgo-plugin-autobackup-settings')
+                const imagePath = await guiApi.showInputBox({
+                    title: '请输入图片备份路径',
+                    placeholder: settings.local.imagePath || ""
+                })
+
+                // 修改配置文件
+                if((imagePath != undefined) && (imagePath != "")){
+                    ctx.saveConfig({
+                        'picgo-plugin-autobackup-settings':{
+                            local:{
+                                "imagePath": imagePath
+                            },
+                            nutstore:{
+                                username: settings.nutstore.username,
+                                password: settings.nutstore.password,
+                                imagePath: settings.nutstore.imagePath
+                            }
+                        }
+                    })
+                }
+                else if(settings.local.imagePath == ""){
+                    await guiApi.showMessageBox({
+                        title: 'Autobackup',
+                        message: '备份文件夹不能为空！',
+                        type: 'error',
+                        buttons: ['Yes']
+                    })
+                }
+            }
+        },
+        {
+            label: '配置坚果云备份',
+            async handle (ctx, guiApi) {
+                const settings = ctx.getConfig('picgo-plugin-autobackup-settings')
+                const username = await guiApi.showInputBox({
+                    title: '请输入坚果云用户名',
+                    placeholder: settings.nutstore.username || ""
+                })
+                if((settings.nutstore.username != "") || ((username != undefined) && (username != ""))){
+                    const password = await guiApi.showInputBox({
+                        title: '请输入坚果云应用密码',
+                        placeholder: settings.nutstore.password || ""
+                    })
+                    if((settings.nutstore.password != "") || ((password != undefined) && (password != ""))){
+                        const imagePath = await guiApi.showInputBox({
+                            title: '请输入坚果云备份文件夹',
+                            placeholder: settings.nutstore.imagePath || ""
+                        })
+                        if((settings.nutstore.imagePath != "") || ((imagePath != undefined) && (imagePath != ""))){
+                            ctx.saveConfig({
+                                'picgo-plugin-autobackup-settings':{
+                                    local:{
+                                        "imagePath": settings.local.imagePath
+                                    },
+                                    nutstore:{
+                                        'username': username || settings.nutstore.username,
+                                        'password': password || settings.nutstore.password,
+                                        'imagePath': imagePath || settings.nutstore.imagePath
+                                    }
+                                }
+                            })
+                            await guiApi.showMessageBox({
+                                title: 'Autobackup',
+                                message: '配置完成！',
+                                type: 'info',
+                                buttons: ['Yes']
+                            })
+                        }
+                        else{
+                            await guiApi.showMessageBox({
+                                title: 'Autobackup',
+                                message: '备份文件夹不能为空！',
+                                type: 'error',
+                                buttons: ['Yes']
+                            })
+                        }
+                    }
+                    else{
+                        await guiApi.showMessageBox({
+                            title: 'Autobackup',
+                            message: '应用密码不能为空！',
+                            type: 'error',
+                            buttons: ['Yes']
+                        })
+                    }
+                }
+                else{
+                    await guiApi.showMessageBox({
+                        title: 'Autobackup',
+                        message: '用户名不能为空！',
+                        type: 'error',
+                        buttons: ['Yes']
+                    })
+                }
+            }
+        }
+    ]
 }
 
 
@@ -183,15 +313,34 @@ module.exports = (ctx) => {
     const register = () => {
         ctx.log.success('autobackup加载成功!')
 
-        // 初始化配置文件
-        ctx.saveConfig({
-            'picgo-plugin-autobackup':{
-                markFilePath: "mark.json",
-                imagePath: "Images",
-                space: "local"
-            }
-        })
+        const userConfig = ctx.getConfig('picgo-plugin-autobackup')
+        const settings = ctx.getConfig('picgo-plugin-autobackup-settings')
 
+        // 初始化配置文件
+        if(!userConfig){
+            ctx.saveConfig({
+                'picgo-plugin-autobackup':{
+                    space: "local",
+                    markFilepath: "Autobackup/mark.json"
+                }
+            })
+        }
+        
+        if(!settings){
+            ctx.saveConfig({
+                'picgo-plugin-autobackup-settings':{
+                    local:{
+                        imagePath: "Autobackup/Images"
+                    },
+                    nutstore:{
+                        username: "",
+                        password: "",
+                        imagePath: ""
+                    }
+                }
+            })
+        }
+        
         // 注册插件
         ctx.helper.beforeUploadPlugins.register('autobackup', {
             handle,
@@ -202,6 +351,7 @@ module.exports = (ctx) => {
     return {
         register,
         config: pluginConfig,
+        guiMenu,
         beforeUploadPlugins: 'autobackup',
         afterUploadPlugins: 'autobackup'
     }
