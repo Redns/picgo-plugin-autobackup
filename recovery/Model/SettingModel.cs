@@ -43,6 +43,39 @@ namespace recovery.Model
             }
         }
 
+        private string _username = string.Empty;
+        public string Username
+        {
+            get { return _username; }
+            set
+            {
+                _username = value;
+                DoNotify();
+            }
+        }
+
+        private string _password = string.Empty;
+        public string Password
+        {
+            get { return _password; }
+            set
+            {
+                _password = value;
+                DoNotify();
+            }
+        }
+
+        private string _imageCloudDir = string.Empty;
+        public string ImageCloudDir
+        {
+            get { return _imageCloudDir; }
+            set
+            {
+                _imageCloudDir = value;
+                DoNotify();
+            }
+        }
+
         private string _outputDir = string.Empty;
         public string OutputDir
         {
