@@ -6,65 +6,77 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using System.Windows;
+using recovery.View;
 
 namespace recovery.ViewModel
 {
     public class MainViewModel : NotifyBase
     {
         public MainModel mainModel { get; set; }
-        public CommandBase ChooseMarkfileCommand { get; set; }
-        public CommandBase ChooseOutputDirCommand { get; set; }
+        public CommandBase OpenHomeNavCommand { get; set; }
+        public CommandBase ChooseSrcFileCommand { get; set; }
+        public CommandBase ReUploadImageCommand { get; set; }
+        public CommandBase OpenSettingNavCommand { get; set; }
 
         public MainViewModel()
         {
             mainModel = new MainModel();
-            ChooseMarkfileCommand = new CommandBase()
+
+            OpenHomeNavCommand = new CommandBase()
             {
                 DoCanExecute = new Func<object, bool>((o) => true),
-                DoExecute = ChooseMarkfile
+                DoExecute = new Action<object>((o) => mainModel.MainContent = new FileListView())
             };
-            ChooseOutputDirCommand = new CommandBase()
+
+            ChooseSrcFileCommand = new CommandBase()
             {
                 DoCanExecute = new Func<object, bool>((o) => true),
-                DoExecute = ChooseOutputDir
+                DoExecute = ChooseSrcFile
             };
+
+            ReUploadImageCommand = new CommandBase()
+            {
+                DoCanExecute = new Func<object, bool>((o) => true),
+                DoExecute = ReUploadImage
+            };
+
+            OpenSettingNavCommand = new CommandBase()
+            {
+                DoCanExecute = new Func<object, bool>((o) => true),
+                DoExecute = new Action<object>((o) => mainModel.MainContent = new SettingView())
+            };
+
+            mainModel.MainContent = new SettingView();
         }
 
 
         /// <summary>
-        /// 选择 MARK 文件
+        /// 选择源文件
         /// </summary>
         /// <param name="o"></param>
-        public void ChooseMarkfile(object o)
+        public void ChooseSrcFile(object o)
         {
-            var openFileDialog = new Microsoft.Win32.OpenFileDialog() 
+            var openFileDialog = new Microsoft.Win32.OpenFileDialog()
             {
-                Title = "请选择 Mark 文件",
-                Filter = "Mark文件|*.json"
+                Title = "请选择源文件",
+                Filter = "所有文件|*.*",
+                Multiselect = true
             };
             if (openFileDialog.ShowDialog() ?? false)
             {
-                mainModel.MarkfilePath =  openFileDialog.FileName;
+                mainModel.SrcFilePath = openFileDialog.FileNames.ToList();
             }
         }
 
 
         /// <summary>
-        /// 选择文件输出路径
+        /// 重新上传图片
         /// </summary>
         /// <param name="o"></param>
-        public void ChooseOutputDir(object o)
+        public void ReUploadImage(object o)
         {
-            var dlg = new CommonOpenFileDialog
-            {
-                Title = "文件输出路径",
-                IsFolderPicker = true
-            };
 
-            if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                mainModel.OutputDir = dlg.FileName;
-            }
         }
     }
 }
