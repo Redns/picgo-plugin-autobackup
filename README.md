@@ -138,3 +138,7 @@
 
 `mark.json` 文件记录了图片链接和备份图片的相关信息，当图片链接失效时可根据该文件追溯备份文件，进而进行重传等操作
 
+<br>
+
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Redns/picgo-plugin-autobackup&type=Date)](https://star-history.com/#Redns/picgo-plugin-autobackup&Date)
