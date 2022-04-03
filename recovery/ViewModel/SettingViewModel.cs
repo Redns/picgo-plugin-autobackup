@@ -67,7 +67,7 @@ namespace recovery.ViewModel
             };
             if (openFileDialog.ShowDialog() ?? false)
             {
-                settingModel.MarkfilePath =  openFileDialog.FileName;
+                settingModel.Settings.Commons.MarkfilePath =  openFileDialog.FileName;
             }
         }
 
@@ -87,7 +87,7 @@ namespace recovery.ViewModel
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                settingModel.ImageDir = dlg.FileName;
+                settingModel.Settings.Spaces.Local.ImageDir = dlg.FileName;
             }
         }
 
@@ -106,7 +106,7 @@ namespace recovery.ViewModel
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                settingModel.OutputDir = dlg.FileName;
+                settingModel.Settings.Commons.FileOutputDir = dlg.FileName;
             }
         }
 

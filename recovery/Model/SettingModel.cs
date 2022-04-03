@@ -10,94 +10,6 @@ namespace recovery.Model
 {
     public class SettingModel : NotifyBase
     {
-        private string _space = string.Empty;
-        public string Space
-        {
-            get { return _space; }
-            set
-            {
-                _space = value;
-                DoNotify();
-            }
-        }
-
-        private string _markfilePath = string.Empty;
-        public string MarkfilePath
-        {
-            get { return _markfilePath; }
-            set
-            {
-                _markfilePath = value;
-                DoNotify();
-            }
-        }
-
-        private string _imageDir = string.Empty;
-        public string ImageDir
-        {
-            get { return _imageDir; }
-            set
-            {
-                _imageDir = value;
-                DoNotify();
-            }
-        }
-
-        private string _username = string.Empty;
-        public string Username
-        {
-            get { return _username; }
-            set
-            {
-                _username = value;
-                DoNotify();
-            }
-        }
-
-        private string _password = string.Empty;
-        public string Password
-        {
-            get { return _password; }
-            set
-            {
-                _password = value;
-                DoNotify();
-            }
-        }
-
-        private string _imageCloudDir = string.Empty;
-        public string ImageCloudDir
-        {
-            get { return _imageCloudDir; }
-            set
-            {
-                _imageCloudDir = value;
-                DoNotify();
-            }
-        }
-
-        private string _outputDir = string.Empty;
-        public string OutputDir
-        {
-            get { return _outputDir; }
-            set
-            {
-                _outputDir = value;
-                DoNotify();
-            }
-        }
-
-        private string _picgoUrl = string.Empty;
-        public string PicgoUrl
-        {
-            get { return _picgoUrl; }
-            set
-            {
-                _picgoUrl = value;
-                DoNotify();
-            }
-        }
-
         private string _picgoUrlTestButtonContent = "测 试";
         public string PicgoUrlTestButtonContent
         {
@@ -120,13 +32,13 @@ namespace recovery.Model
             }
         }
 
-        private string _checkUpdateUrl = string.Empty;
-        public string CheckUpdateUrl
+        private AppSetting _settings;
+        public AppSetting Settings
         {
-            get { return _checkUpdateUrl; }
+            get { return _settings; }
             set
             {
-                _checkUpdateUrl = value;
+                _settings = value;
                 DoNotify();
             }
         }
@@ -151,6 +63,11 @@ namespace recovery.Model
                 _checkUpdateRunning = value;
                 DoNotify();
             }
+        }
+
+        public SettingModel()
+        {
+            Settings = AppSetting.Get("appsettings.json") ?? new AppSetting();
         }
     }
 }

@@ -111,9 +111,9 @@
                 </Grid.ColumnDefinitions>
 
                 <materialDesign:PackIcon Kind="Copyright" Grid.Column="1"
-                                         VerticalAlignment="Center" Height="30" Width="30" Margin="59,0,0,0" RenderTransformOrigin="1.473,0.547"/>
-                <TextBlock Grid.Column="1" Text="2022 MIT License" FontSize="18"
-                           VerticalAlignment="Center" Margin="94,0,50,0"/>
+                                         VerticalAlignment="Center" Height="20" Width="20" Margin="59,0,0,0" RenderTransformOrigin="1.473,0.547"/>
+                <TextBlock Grid.Column="1" Text="2022 MIT License" FontSize="17"
+                           VerticalAlignment="Center" Margin="84,0,50,0"/>
             </Grid>
         </Grid>
     </Border>

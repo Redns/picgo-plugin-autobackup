@@ -37,7 +37,7 @@
                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Height="52" Width="480" Margin="20 10 20 0" FontSize="13"
-                            materialDesign:HintAssist.Hint="Mark文件路径" Text="{Binding settingModel.MarkfilePath}"/>
+                            materialDesign:HintAssist.Hint="Mark文件路径" Text="{Binding settingModel.Settings.Commons.MarkfilePath}"/>
                         <Button 
                             Grid.Row="0" Grid.Column="1"
                             Style="{StaticResource MaterialDesignPaperButton}"
@@ -50,7 +50,7 @@
                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Height="52" Width="480" Margin="20 0" FontSize="13"
-                            materialDesign:HintAssist.Hint="图片备份路径" Text="{Binding settingModel.ImageDir}"/>
+                            materialDesign:HintAssist.Hint="图片备份路径" Text="{Binding settingModel.Settings.Spaces.Local.ImageDir}"/>
                         <Button
                             Grid.Row="1" Grid.Column="1"
                             Style="{StaticResource MaterialDesignPaperButton}"
@@ -75,7 +75,7 @@
                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             Height="52" Width="480" Margin="20 10 20 0" FontSize="13"
-                            materialDesign:HintAssist.Hint="Mark文件路径" Text="{Binding settingModel.MarkfilePath}"/>
+                            materialDesign:HintAssist.Hint="Mark文件路径" Text="{Binding settingModel.Settings.Commons.MarkfilePath}"/>
                         <Button 
                             Grid.Row="0" Grid.Column="1"
                             Style="{StaticResource MaterialDesignPaperButton}"
@@ -88,19 +88,19 @@
                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
                             VerticalAlignment="Center" HorizontalAlignment="Left"
                             Height="52" Width="180" Margin="145 0" FontSize="13"
-                            materialDesign:HintAssist.Hint="用户名" Text="{Binding settingModel.Username}"/>
+                            materialDesign:HintAssist.Hint="用户名" Text="{Binding settingModel.Settings.Spaces.NutStore.Username}"/>
                         <TextBox
                             Grid.Row="1" Grid.Column="0"
                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
                             VerticalAlignment="Center" HorizontalAlignment="Left"
                             Height="52" Width="180" Margin="368,0,0,0" FontSize="13"
-                            materialDesign:HintAssist.Hint="应用密码" Text="{Binding settingModel.Password}"/>
+                            materialDesign:HintAssist.Hint="应用密码" Text="{Binding settingModel.Settings.Spaces.NutStore.Password}"/>
                         <TextBox
                             Grid.Row="1" Grid.Column="0"
                             Style="{StaticResource MaterialDesignOutlinedTextBox}"
                             VerticalAlignment="Center" HorizontalAlignment="Left"
                             Height="52" Width="180" Margin="595,0,0,0" FontSize="13"
-                            materialDesign:HintAssist.Hint="图片文件夹" Text="{Binding settingModel.ImageCloudDir}" Grid.ColumnSpan="2"/>
+                            materialDesign:HintAssist.Hint="图片文件夹" Text="{Binding settingModel.Settings.Spaces.NutStore.ImageCloudDir}" Grid.ColumnSpan="2"/>
                     </Grid>
                 </TabItem>
             </TabControl>
@@ -114,7 +114,7 @@
                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
                     VerticalAlignment="Center" HorizontalAlignment="Right"
                     Height="52" Width="480" Margin="20 0" FontSize="13"
-                    materialDesign:HintAssist.Hint="文件导出路径" Text="{Binding settingModel.OutputDir}"/>
+                    materialDesign:HintAssist.Hint="文件导出路径" Text="{Binding settingModel.Settings.Commons.FileOutputDir}"/>
                 <Button
                     Grid.Column="1"
                     Style="{StaticResource MaterialDesignPaperButton}"
@@ -133,7 +133,7 @@
                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
                     VerticalAlignment="Center" HorizontalAlignment="Right"
                     Height="52" Width="480" Margin="20 0" FontSize="13"
-                    materialDesign:HintAssist.Hint="Picgo url" Text="{Binding settingModel.OutputDir}"/>
+                    materialDesign:HintAssist.Hint="Picgo url" Text="{Binding settingModel.Settings.Commons.PicgoUploadUrl}"/>
                 <Button
                     Grid.Column="1" Content="{Binding settingModel.PicgoUrlTestButtonContent}"
                     Width="90" Height="52" Margin="40 0"
@@ -155,7 +155,7 @@
                     Style="{StaticResource MaterialDesignOutlinedTextBox}"
                     VerticalAlignment="Center" HorizontalAlignment="Right"
                     Height="52" Width="480" Margin="20 0" FontSize="13"
-                    materialDesign:HintAssist.Hint="Check update url" Text="{Binding settingModel.CheckUpdateUrl}"/>
+                    materialDesign:HintAssist.Hint="Check update url" Text="{Binding settingModel.Settings.Commons.CheckUpdateUrl}"/>
                 <Button
                     Grid.Column="1" Content="{Binding settingModel.CheckUpdateButtonContent}"
                     Width="90" Height="52" Margin="40 0"
