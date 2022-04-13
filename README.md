@@ -1,6 +1,8 @@
 # picgo-plugin-autobackup
 
-![version: v1.4.9 (shields.io)](https://img.shields.io/badge/version-v1.4.9-green)
+![version: v1.4.9 (shields.io)](https://img.shields.io/badge/version-v1.4.10-green)
+
+> v1.4.9 与 v1.4.10 仅设置中的提示文字有所差别，代码逻辑完全相同
 
 <br>
 
@@ -72,7 +74,7 @@
 
 4. 再次点击 `autobackup` 右下角的齿轮按钮，选择 `配置坚果云备份`
 
-5. 在对话框中输入 `坚果云用户名`，点击确定
+5. 在对话框中输入 `坚果云邮箱`，点击确定
 
    ![image-20220402155555804](http://jing-image.test.upcdn.net/image-20220402155555804.png)
 
