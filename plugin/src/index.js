@@ -244,7 +244,7 @@ const guiMenu = ctx => {
             async handle (ctx, guiApi) {
                 const settings = ctx.getConfig('picgo-plugin-autobackup-settings')
                 const username = await guiApi.showInputBox({
-                    title: '请输入坚果云用户名',
+                    title: '请输入坚果云邮箱',
                     placeholder: settings.nutstore.username || ""
                 })
                 if((settings.nutstore.username != "") || ((username != undefined) && (username != ""))){
