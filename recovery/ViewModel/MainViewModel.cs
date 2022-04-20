@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using System.Windows;
 using recovery.View;
+using recovery.Model.Entity;
+using System.IO;
 
 namespace recovery.ViewModel
 {
@@ -18,6 +20,7 @@ namespace recovery.ViewModel
         public CommandBase ChooseSrcFileCommand { get; set; }
         public CommandBase ReUploadImageCommand { get; set; }
         public CommandBase OpenSettingNavCommand { get; set; }
+        public CommandBase OpenAboutNavCommand { get; set; }
 
         public MainViewModel()
         {
@@ -47,6 +50,12 @@ namespace recovery.ViewModel
                 DoExecute = new Action<object>((o) => mainModel.MainContent = new SettingView())
             };
 
+            OpenAboutNavCommand = new CommandBase()
+            {
+                DoCanExecute = new Func<object, bool>((s) => true),
+                DoExecute = new Action<object>((o) => mainModel.MainContent = new AboutView())
+            };
+
             mainModel.MainContent = new SettingView();
         }
 
@@ -65,7 +74,18 @@ namespace recovery.ViewModel
             };
             if (openFileDialog.ShowDialog() ?? false)
             {
-                mainModel.SrcFilePath = openFileDialog.FileNames.ToList();
+                openFileDialog.FileNames.ToList().ForEach(filepath =>
+                {
+                    var fileinfo = new FileInfo(filepath);
+                    var fileExt = UnitNameGenerator.GetFileExtension(fileinfo.Name) ?? "";
+                    GlobalValues.FileListModel.Files.Add(new FileEntity()
+                    {
+                        FileName = fileinfo.Name,
+                        Size = UnitNameGenerator.RebuildFileSize(fileinfo.Length),
+                        Icon = UnitNameGenerator.GetFileIcon(fileExt),
+                        FullPath = filepath
+                    });
+                });
             }
         }
 

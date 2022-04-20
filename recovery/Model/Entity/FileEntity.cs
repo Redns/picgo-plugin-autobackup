@@ -9,19 +9,8 @@ namespace recovery.Model.Entity
 {
     public class FileEntity : NotifyBase
     {
-        private string _id = string.Empty;
-        public string Id
-        {
-            get { return _id; }
-            set
-            {
-                _id = value;
-                DoNotify();
-            }
-        }
-
-        private string _filename = string.Empty;
-        public string Filename
+        private string _filename = "";
+        public string FileName
         {
             get { return _filename; }
             set
@@ -31,18 +20,7 @@ namespace recovery.Model.Entity
             }
         }
 
-        private string _extname = string.Empty;
-        public string Extname
-        {
-            get { return _extname; }
-            set
-            {
-                _extname = value;
-                DoNotify();
-            }
-        }
-
-        private string _size = string.Empty;
+        private string _size = "";
         public string Size
         {
             get { return _size; }
@@ -53,13 +31,24 @@ namespace recovery.Model.Entity
             }
         }
 
-        private string _dir = string.Empty;
-        public string Dir
+        private string _icon = "";
+        public string Icon
         {
-            get { return _dir; }
+            get { return _icon; }
             set
             {
-                _dir = value;
+                _icon = value;
+                DoNotify();
+            }
+        }
+
+        private string _fullpath = "";
+        public string FullPath
+        {
+            get { return _fullpath; }
+            set
+            {
+                _fullpath = value;
                 DoNotify();
             }
         }

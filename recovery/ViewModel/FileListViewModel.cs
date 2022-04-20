@@ -1,4 +1,5 @@
-﻿using recovery.Model;
+﻿using recovery.Common;
+using recovery.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,17 @@ namespace recovery.ViewModel
 {
     public class FileListViewModel
     {
-        public FileListModel fileListModel { get; set; }
+        public FileListModel FileListModel { get; set; }
 
         public FileListViewModel()
         {
-            fileListModel = new FileListModel();
+            FileListModel = new()
+            {
+                Files = new(),
+                Running = false,
+                RunningMsg = "",
+                RunningPercent = 0
+            };
         }
     }
 }

@@ -95,6 +95,16 @@ namespace recovery.Common
             get { return _checkUpdateUrl; }
             set { _checkUpdateUrl = value; DoNotify(); }
         }
+
+        private string _downloadUrl = string.Empty;
+        public string DownloadUrl
+        {
+            get { return _downloadUrl; }
+            set
+            {
+                _downloadUrl = value; DoNotify();
+            }
+        }
     }
 
     public class Space : NotifyBase

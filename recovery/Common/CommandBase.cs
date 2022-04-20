@@ -13,15 +13,19 @@ namespace recovery.Common
         public event EventHandler? CanExecuteChanged;
 
         // 判断是否可执行
-        public bool CanExecute(object parameter)
+        public bool CanExecute(object? parameter)
         {
-            return DoCanExecute?.Invoke(parameter) == true;
+            if(parameter != null)
+            {
+                return DoCanExecute?.Invoke(parameter) == true;
+            }
+            return true;
         }
 
         // 执行体
-        public void Execute(object parameter)
+        public void Execute(object? parameter)
         {
-            DoExecute?.Invoke(parameter);
+            DoExecute?.Invoke(parameter ?? new object());
         }
 
         public Action<object>? DoExecute { get; set; }

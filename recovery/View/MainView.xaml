@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:recovery.View"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:model="clr-namespace:recovery.ViewModel" d:DataContext="{d:DesignInstance Type=model:MainViewModel}"
         mc:Ignorable="d"
         Title="Recovery" Height="650" Width="950" Icon="/Assets/Images/icon.png"
@@ -66,39 +67,76 @@
                     MouseLeftButtonDown="StackPanel_MouseLeftButtonDown" CornerRadius="10 10 0 0">
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="350"/>
+                        <ColumnDefinition Width="120"/>
+                        <ColumnDefinition Width="360"/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text=" Recovery" Foreground="#666666" FontSize="24" FontFamily="Times New Roman" FontWeight="Bold" FontStyle="Italic" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    <ToolBarTray Grid.Column="1" Margin="5 0">
-                        <ToolBar Style="{StaticResource MaterialDesignToolBar}"
-                                 ClipToBounds="False">
-                            <Button
-                                ToolTip="Home" Command="{Binding OpenHomeNavCommand}"
-                                Content="{materialDesign:PackIcon Kind=Home}"/>
-                            <Button
-                                ToolTip="Open" Command="{Binding ChooseSrcFileCommand}"
-                                Content="{materialDesign:PackIcon Kind=FolderOpenOutline}" />
-                            <Button
-                                ToolTip="ReUpload" Command="{Binding ReUploadImageCommand}"
-                                Content="{materialDesign:PackIcon Kind=CloudUploadOutline}" />
-                            <Button
-                                ToolTip="Settings" Command="{Binding OpenSettingNavCommand}"
-                                Content="{materialDesign:PackIcon Kind=CogOutline}"/>
-                            <Button
-                                ToolTip="Github"
-                                Click="GoToGithub"
-                                Content="{materialDesign:PackIcon Kind=Github}"/>
-                        </ToolBar>
-                    </ToolBarTray>
+                    <TextBlock Grid.Column="0" Text="Recovery" Foreground="#666666" FontSize="24" FontFamily="Times New Roman" FontWeight="Bold" FontStyle="Italic" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Grid Grid.Column="1">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="60"/>
+                            <ColumnDefinition Width="60"/>
+                        </Grid.ColumnDefinitions>
+                        <Button Grid.Column="0" Cursor="Hand"
+                                Height="50" Width="60" BorderThickness="0" Background="#FFF9F9F9"
+                                Command="{Binding OpenHomeNavCommand}">
+                            <materialDesign:PackIcon Kind="Home" Width="25" Height="25"/>
+                            <hc:Poptip.Instance>
+                                <hc:Poptip Content="主 页" PlacementType="TopLeft"/>
+                            </hc:Poptip.Instance>
+                        </Button>
+                        <Button Grid.Column="1" Cursor="Hand"
+                            Height="50" Width="60" BorderThickness="0" Background="#FFF9F9F9"
+                            Command="{Binding ChooseSrcFileCommand}">
+                            <materialDesign:PackIcon Kind="FolderOpenOutline" Width="25" Height="25"/>
+                            <hc:Poptip.Instance>
+                                <hc:Poptip Content="选择文件" PlacementType="TopLeft"/>
+                            </hc:Poptip.Instance>
+                        </Button>
+                        <Button Grid.Column="2" Cursor="Hand"
+                            Height="50" Width="60" BorderThickness="0" Background="#FFF9F9F9"
+                            Command="{Binding ReUploadImageCommand}">
+                            <materialDesign:PackIcon Kind="CloudUploadOutline" Width="25" Height="25"/>
+                            <hc:Poptip.Instance>
+                                <hc:Poptip Content="上传图片" PlacementType="TopLeft"/>
+                            </hc:Poptip.Instance>
+                        </Button>
+                        <Button Grid.Column="3" Cursor="Hand"
+                            Height="50" Width="60" BorderThickness="0" Background="#FFF9F9F9"
+                            Command="{Binding OpenSettingNavCommand}">
+                            <materialDesign:PackIcon Kind="CogOutline" Width="25" Height="25"/>
+                            <hc:Poptip.Instance>
+                                <hc:Poptip Content="设 置" PlacementType="TopLeft"/>
+                            </hc:Poptip.Instance>
+                        </Button>
+                        <Button Grid.Column="4" Cursor="Hand"
+                                Height="50" Width="60" BorderThickness="0" Background="#FFF9F9F9"
+                                Command="{Binding OpenAboutNavCommand}">
+                            <materialDesign:PackIcon Kind="InformationOutline" Height="25" Width="25"/>
+                            <hc:Poptip.Instance>
+                                <hc:Poptip Content="关 于" PlacementType="TopLeft"/>
+                            </hc:Poptip.Instance>
+                        </Button>
+                        <Button Grid.Column="5" Cursor="Hand"
+                                Height="50" Width="60" BorderThickness="0" Background="#FFF9F9F9"
+                                Click="GoToGithub">
+                            <materialDesign:PackIcon Kind="Github" Width="25" Height="25"/>
+                            <hc:Poptip.Instance>
+                                <hc:Poptip Content="项目地址" PlacementType="TopLeft"/>
+                            </hc:Poptip.Instance>
+                        </Button>
+                    </Grid>
                     <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Top" HorizontalAlignment="Right">
                         <Button Height="50" Width="50" 
-                            Template="{StaticResource WindowMinSizeButtonTemplete}" 
-                            Click="WindowMinSize"/>
+                        Template="{StaticResource WindowMinSizeButtonTemplete}" 
+                        Click="WindowMinSize"/>
                         <Button Height="50" Width="50"
-                            Template="{StaticResource WindowCloseButtonTemplete}"
-                            Click="WindowClose"/>
+                        Template="{StaticResource WindowCloseButtonTemplete}"
+                        Click="WindowClose"/>
                     </StackPanel>
                 </Grid>
             </Border>

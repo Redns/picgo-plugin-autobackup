@@ -1,4 +1,5 @@
-﻿using recovery.ViewModel;
+﻿using recovery.Common;
+using recovery.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -31,6 +32,9 @@ namespace recovery.View
 
             // 设置数据内容
             DataContext = new MainViewModel();
+            GlobalValues.MainView = this;
+            GlobalValues.MainViewModel = (MainViewModel)DataContext;
+            GlobalValues.MainModel = ((MainViewModel)DataContext).mainModel;
         }
 
 

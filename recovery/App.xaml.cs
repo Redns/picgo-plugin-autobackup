@@ -22,7 +22,6 @@ namespace recovery
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
-            var res = PicgoHelper.UploadImage("http://127.0.0.1:36677/upload", new List<string>() { "D:\\OneDrive\\图片\\Logo\\1.jpeg" });
             new MainView().Show();
         }
     }

@@ -21,20 +21,9 @@ namespace recovery.Model
             }
         }
 
-        private List<string> _srcFilepath;
-        public List<string> SrcFilePath
-        {
-            get { return _srcFilepath; }
-            set
-            {
-                _srcFilepath = value;
-                DoNotify();
-            }
-        }
-
         public MainModel()
         {
-            SrcFilePath = new List<string>();
+            
         }
     }
 }

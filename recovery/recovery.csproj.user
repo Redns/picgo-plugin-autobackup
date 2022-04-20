@@ -1,12 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup />
+  <PropertyGroup>
+    <_LastSelectedProfileId>D:\Project\picgo-plugin-autobackup\recovery-2\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
   <ItemGroup>
     <ApplicationDefinition Update="App.xaml">
       <SubType>Designer</SubType>
     </ApplicationDefinition>
   </ItemGroup>
   <ItemGroup>
+    <Compile Update="View\AboutView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="View\FileListView.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -18,6 +23,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Page Update="View\AboutView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="View\FileListView.xaml">
       <SubType>Designer</SubType>
     </Page>

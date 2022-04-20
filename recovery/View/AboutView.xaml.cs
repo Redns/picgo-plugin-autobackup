@@ -1,5 +1,4 @@
-﻿using recovery.Common;
-using recovery.ViewModel;
+﻿using recovery.ViewModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,19 +17,14 @@ using System.Windows.Shapes;
 namespace recovery.View
 {
     /// <summary>
-    /// FileListView.xaml 的交互逻辑
+    /// AboutView.xaml 的交互逻辑
     /// </summary>
-    public partial class FileListView : UserControl
+    public partial class AboutView : UserControl
     {
-        public FileListView()
+        public AboutView()
         {
             InitializeComponent();
-
-            GlobalValues.FileListView = this;
-            GlobalValues.FileListViewModel = new FileListViewModel();
-            GlobalValues.FileListModel = GlobalValues.FileListViewModel.FileListModel;
-
-            DataContext = GlobalValues.FileListViewModel;
+            DataContext = new AboutViewModel();
         }
     }
 }

@@ -4,11 +4,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace recovery.Common
 {
+    // TODO 使用 HttpClient() 重写
     public class PicgoHelper
     {
         /// <summary>
@@ -17,30 +20,22 @@ namespace recovery.Common
         /// <param name="url">Picgo端口</param>
         /// <param name="paths">本地图片路径数组</param>
         /// <returns></returns>
-        public static PicgoUploadResponse? UploadImage(string url, List<string> paths)
+        public static async Task<PicgoUploadResponse?> UploadImage(string url, List<string> paths)
         {
-            var request = (HttpWebRequest)WebRequest.Create(url);
-            request.ContentType = "application/json";
-            request.Method = "POST";
+            // 填充参数
+            HttpContent content = new StringContent(JsonConvert.SerializeObject(new PicgoUploadRequest(paths)));
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
 
-            using (var streamWriter = new StreamWriter(request.GetRequestStream()))
-            {
-                streamWriter.Write(JsonConvert.SerializeObject(new PicgoUploadRequest(paths)));
-            }
-
-            try
-            {
-                var response = (HttpWebResponse)request.GetResponse();
-                using var streamReader = new StreamReader(response.GetResponseStream());
-                return JsonConvert.DeserializeObject<PicgoUploadResponse>(streamReader.ReadToEnd());
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            // 发送请求
+            var resp = await new HttpClient().PostAsync(url, content);
+            return JsonConvert.DeserializeObject<PicgoUploadResponse?>(await resp.Content.ReadAsStringAsync());
         }
     }
 
+
+    /// <summary>
+    /// 上传请求
+    /// </summary>
     public class PicgoUploadRequest
     {
         public string[]? list;
@@ -50,6 +45,10 @@ namespace recovery.Common
         }
     }
 
+
+    /// <summary>
+    /// 上传结果
+    /// </summary>
     public class PicgoUploadResponse
     {
         public bool success;
