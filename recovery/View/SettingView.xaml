@@ -21,9 +21,9 @@
                 <RowDefinition Height="70"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right">
+            <!--<ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right">
                 <StackPanel  VerticalAlignment="Top"/>
-            </ScrollViewer>
+            </ScrollViewer>-->
             <TabControl Grid.Row="0" Margin="-5 0 0 0" Style="{StaticResource TabControlInLine}" Background="#FFF9F9F9" BorderThickness="0" FontSize="14">
                 <TabItem Header="本地恢复" Cursor="Hand" Background="#FFF9F9F9">
                     <Grid>
@@ -39,15 +39,15 @@
                         <hc:TextBox Grid.Row="1" Grid.Column="0" Height="40" Width="480" Margin="20 0" FontSize="15"
                                     VerticalAlignment="Center" HorizontalAlignment="Right"
                                     hc:InfoElement.Placeholder="Mark 文件路径"
-                                    Text="{Binding settingModel.Settings.Commons.MarkfilePath}" BorderThickness="2"/>
+                                    Text="{Binding SettingModel.Settings.Commons.MarkfilePath}" BorderThickness="2"/>
                         <Button 
                             Grid.Row="1" Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14"
                             Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
                             Content="选 择" Command="{Binding ChooseMarkfileCommand}"/>
                         <hc:TextBox Grid.Row="2" Grid.Column="0" Height="40" Width="480" Margin="146,0,0,0" FontSize="15"
                                     VerticalAlignment="Center" HorizontalAlignment="Left"
-                                    hc:InfoElement.Placeholder="图片备份路径"
-                                    Text="{Binding settingModel.Settings.Spaces.Local.ImageDir}" BorderThickness="2"/>
+                                    hc:InfoElement.Placeholder="PicGo 安装路径"
+                                    Text="{Binding SettingModel.Settings.Spaces.Local.PicGoDir}" BorderThickness="2"/>
                         <Button Grid.Row="2" Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14"
                                 Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
                                 Content="选 择" Command="{Binding ChooseImageDirCommand}"/>
@@ -67,23 +67,26 @@
                         <hc:TextBox Grid.Row="1" Grid.Column="0" Height="40" Width="480" Margin="20 0" FontSize="15"
                                     VerticalAlignment="Center" HorizontalAlignment="Right"
                                     hc:InfoElement.Placeholder="Mark 文件路径"
-                                    Text="{Binding settingModel.Settings.Commons.MarkfilePath}" BorderThickness="2"/>
+                                    Text="{Binding SettingModel.Settings.Commons.MarkfilePath}" BorderThickness="2"/>
                         <Button 
                             Grid.Row="1" Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14"
                             Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
                             Content="选 择" Command="{Binding ChooseMarkfileCommand}"/>
-                        <hc:TextBox Grid.Row="2" Grid.Column="0" Height="40" Width="180" Margin="145 0" FontSize="15"
+                        <hc:TextBox Grid.Row="2" Grid.Column="0" Height="40" Width="220" Margin="145 0" FontSize="15"
                                     VerticalAlignment="Center" HorizontalAlignment="Left"
                                     hc:InfoElement.Placeholder="账号"
-                                    Text="{Binding settingModel.Settings.Spaces.NutStore.Username}" BorderThickness="2"/>
-                        <hc:TextBox Grid.Row="2" Grid.Column="0" Height="40" Width="180" Margin="368,0,0,0" FontSize="15"
+                                    Text="{Binding SettingModel.Settings.Spaces.NutStore.Username}" BorderThickness="2"/>
+                        <hc:TextBox Grid.Row="2" Grid.Column="0" Height="40" Width="220" Margin="406,0,0,0" FontSize="15"
                                     VerticalAlignment="Center" HorizontalAlignment="Left"
                                     hc:InfoElement.Placeholder="应用密码" BorderThickness="2"
-                                    Text="{Binding settingModel.Settings.Spaces.NutStore.Password}"/>
-                        <hc:TextBox Grid.Row="2" Grid.Column="0" Height="40" Width="180" Margin="595,0,0,0" FontSize="15"
-                                    VerticalAlignment="Center" HorizontalAlignment="Left"
-                                    hc:InfoElement.Placeholder="应用密码" BorderThickness="2"
-                                    Text="{Binding settingModel.Settings.Spaces.NutStore.ImageCloudDir}" Grid.ColumnSpan="2"/>
+                                    Text="{Binding SettingModel.Settings.Spaces.NutStore.Password}"/>
+                        <Button Grid.Row="2" Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14" Cursor="Hand"
+                                Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                                Content="{Binding SettingModel.NutStoreUrlTestButtonContent}"
+                                Command="{Binding CheckNutStoreUrlCommand}"/>
+                        <ProgressBar
+                            Grid.Row="2" Grid.Column="1" Margin="75,30,215,31"
+                            Style="{StaticResource MaterialDesignCircularProgressBar}" Value="50" IsIndeterminate="True" RenderTransformOrigin="4.81,0.64" Visibility="{Binding SettingModel.NutStoreUrlTestRunning}"/>
                     </Grid>
                 </TabItem>
             </TabControl>
@@ -95,7 +98,7 @@
                 <hc:TextBox Grid.Column="0" Height="40" Width="480" Margin="20 0" FontSize="15"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             hc:InfoElement.Placeholder="文件导出路径"
-                            Text="{Binding settingModel.Settings.Commons.FileOutputDir}" BorderThickness="2"/>
+                            Text="{Binding SettingModel.Settings.Commons.FileOutputDir}" BorderThickness="2"/>
                 <Button
                     Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14" Cursor="Hand"
                     Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
@@ -109,15 +112,15 @@
                 <hc:TextBox Grid.Column="0" Height="40" Width="480" Margin="20 0" FontSize="15"
                             VerticalAlignment="Center" HorizontalAlignment="Right"
                             hc:InfoElement.Placeholder="PicGo 上传接口"
-                            Text="{Binding settingModel.Settings.Commons.PicgoUploadUrl}" BorderThickness="2"/>
+                            Text="{Binding SettingModel.Settings.Commons.PicgoUploadUrl}" BorderThickness="2"/>
                 <Button Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14" Cursor="Hand"
                         Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
-                        Content="{Binding settingModel.PicgoUrlTestButtonContent}"
+                        Content="{Binding SettingModel.PicgoUrlTestButtonContent}"
                         Command="{Binding CheckPicgoUrlCommand}">
                 </Button>
                 <ProgressBar
                     Grid.Column="1" Margin="75,30,215,31"
-                    Style="{StaticResource MaterialDesignCircularProgressBar}" Value="50" IsIndeterminate="True" RenderTransformOrigin="4.81,0.64" Visibility="{Binding settingModel.PicgoUrlTestRunning}"/>
+                    Style="{StaticResource MaterialDesignCircularProgressBar}" Value="50" IsIndeterminate="True" RenderTransformOrigin="4.81,0.64" Visibility="{Binding SettingModel.PicgoUrlTestRunning}"/>
             </Grid>
             <Grid Grid.Row="3">
                 <Grid.ColumnDefinitions>

@@ -17,7 +17,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition/>
-                <RowDefinition Height="80"/>
+                <RowDefinition Height="100"/>
             </Grid.RowDefinitions>
             <Grid Grid.Row="0" Margin="0 10">
                 <hc:ScrollViewer IsInertiaEnabled="True">
@@ -32,18 +32,17 @@
                                 <Grid Height="70" Margin="100 0">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="60"/>
-                                        <ColumnDefinition Width="3*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition/>
+                                        <ColumnDefinition Width="140"/>
                                     </Grid.ColumnDefinitions>
-                                    <hc:Gravatar Source="{Binding Icon}" Height="40" Width="40" Style="{StaticResource GravatarCircle}"/>
+                                    <hc:Gravatar Source="{Binding Icon}" Height="40" Width="40" />
                                     <TextBlock Grid.Column="1"
-                                               Text="{Binding FileName}" FontSize="18" FontFamily="Times New Roman" FontWeight="Bold" FontStyle="Italic"
+                                               Text="{Binding FileName}" FontSize="17" FontFamily="Times New Roman" FontWeight="Medium"
                                                VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20 0"></TextBlock>
-                                    <TextBlock Grid.Column="2" 
-                                               Text="{Binding Size}" FontSize="14"
-                                               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="20 0"></TextBlock>
-                                    <Button Grid.Column="3" Background="#FFF9F9F9" Height="50" Width="50" BorderThickness="0">
+                                    <Button Grid.Column="3" 
+                                            Background="#FFF9F9F9" Height="50" Width="50" BorderThickness="0"
+                                            Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ItemsControl}}, Path=DataContext.RemoveFileCommand}"
+                                            CommandParameter="{Binding FileName}">
                                         <hc:Gravatar Source="/Assets/Images/del.png" Style="{StaticResource GravatarCircle}" Cursor="Hand"
                                                      Height="35" Width="35" VerticalAlignment="Center" HorizontalAlignment="Center"/>
                                         <hc:Poptip.Instance>
@@ -56,19 +55,13 @@
                     </ItemsControl>
                 </hc:ScrollViewer>
             </Grid>
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Grid Grid.Column="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="{Binding FileListModel.RunningMsg}" VerticalAlignment="Bottom" Margin="0 10"/>
-                    <ProgressBar Grid.Row="1" VerticalAlignment="Top" Value="{Binding FileListModel.RunningPercent}" Margin="0 0 40 0"/>
-                </Grid>
+            <Grid Grid.Row="1" Width="800" Margin="0 0 0 40" VerticalAlignment="Bottom" HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock Text="{Binding FileListModel.RunningMsg}" FontSize="14" VerticalAlignment="Bottom" Margin="0 0 0 10"/>
+                <ProgressBar Grid.Row="1" VerticalAlignment="Top" Value="{Binding FileListModel.RunningPercent}" Margin="0 0 40 0"/>
             </Grid>
         </Grid>
     </Border>

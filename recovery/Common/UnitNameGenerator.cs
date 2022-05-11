@@ -56,26 +56,10 @@ namespace recovery.Common
                 "docx" => "/Assets/Images/word.png",
                 "md" => "/Assets/Images/markdown.png",
                 "xlsx" => "/Assets/Images/excel.png",
+                "txt" => "/Assets/Images/txt.png",
+                "js" => "/Assets/Images/js.png",
+                "json" => "/Assets/Images/json.png",
                 _ => "/Assets/Images/file.png"
-            };
-        }
-
-
-        /// <summary>
-        /// 获取文件图标颜色
-        /// </summary>
-        /// <param name="ext"></param>
-        /// <returns></returns>
-        public static string GetFileIconColor(string ext)
-        {
-            return ext.ToLower() switch
-            {
-                "html" => "#FF7CCDFF",
-                "doc" => "#FF5090F1",
-                "docx" => "#FF5090F1",
-                "md" => "#FF42A5F5",
-                "xlsx" => "#FF00C296",
-                _ => "#FF2AB2BE"
             };
         }
 

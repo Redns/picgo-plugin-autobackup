@@ -4,8 +4,10 @@ using recovery.Common;
 using recovery.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -59,7 +61,29 @@ namespace recovery.ViewModel
                 var res = HandyControl.Controls.MessageBox.Show($"检测到最新版本 {versionLatest}, 现在更新?", "应用更新", MessageBoxButton.YesNo, MessageBoxImage.Question);
                 if(res == MessageBoxResult.Yes)
                 {
-                    // TODO 更新应用
+                    try
+                    {
+                        var config = JsonConvert.DeserializeObject<AppSetting>(File.ReadAllText("appsettings.json"));
+                        using (var downloadStream = await new HttpClient().GetStreamAsync(config.Commons.DownloadUrl))
+                        {
+                            using (var StreamWriter = new FileStream("Recovery.exe", FileMode.OpenOrCreate))
+                            {
+                                await downloadStream.CopyToAsync(StreamWriter);
+                                await StreamWriter.FlushAsync();
+                            }
+                            await downloadStream.FlushAsync();
+                        }
+
+                        new Process()
+                        {
+                            StartInfo = new ProcessStartInfo("Recovery.exe")
+                        }.Start();
+                        Process.GetCurrentProcess().Kill();
+                    }
+                    catch
+                    {
+
+                    }
                 }
             }
             else

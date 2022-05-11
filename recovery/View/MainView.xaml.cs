@@ -34,7 +34,7 @@ namespace recovery.View
             DataContext = new MainViewModel();
             GlobalValues.MainView = this;
             GlobalValues.MainViewModel = (MainViewModel)DataContext;
-            GlobalValues.MainModel = ((MainViewModel)DataContext).mainModel;
+            GlobalValues.MainModel = ((MainViewModel)DataContext).MainModel;
         }
 
 

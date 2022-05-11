@@ -1,4 +1,5 @@
 ﻿using recovery.Common;
+using recovery.View;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,9 +22,12 @@ namespace recovery.Model
             }
         }
 
+        public bool Uploading { get; set; }
+
         public MainModel()
         {
-            
+            MainContent = new FileListView();
+            Uploading = false;
         }
     }
 }

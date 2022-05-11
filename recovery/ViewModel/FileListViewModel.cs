@@ -11,6 +11,7 @@ namespace recovery.ViewModel
     public class FileListViewModel
     {
         public FileListModel FileListModel { get; set; }
+        public CommandBase RemoveFileCommand { get; set; }
 
         public FileListViewModel()
         {
@@ -20,6 +21,12 @@ namespace recovery.ViewModel
                 Running = false,
                 RunningMsg = "",
                 RunningPercent = 0
+            };
+
+            RemoveFileCommand = new CommandBase()
+            {
+                DoCanExecute = new Func<object, bool>((o) => true),
+                DoExecute = new Action<object>((o) => FileListModel.Files.Remove(FileListModel.Files.First(f => f.FileName == o.ToString())))
             };
         }
     }

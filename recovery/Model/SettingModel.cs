@@ -32,6 +32,28 @@ namespace recovery.Model
             }
         }
 
+        private string _nutStoreUrlTestButtonContent = "测 试";
+        public string NutStoreUrlTestButtonContent
+        {
+            get { return _nutStoreUrlTestButtonContent; }
+            set
+            {
+                _nutStoreUrlTestButtonContent = value;
+                DoNotify();
+            }
+        }
+
+        private Visibility _nutStoreUrlTestRunning = Visibility.Hidden;
+        public Visibility NutStoreUrlTestRunning
+        {
+            get { return _nutStoreUrlTestRunning; }
+            set
+            {
+                _nutStoreUrlTestRunning = value;
+                DoNotify();
+            }
+        }
+
         private AppSetting _settings;
         public AppSetting Settings
         {

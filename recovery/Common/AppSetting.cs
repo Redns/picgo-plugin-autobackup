@@ -126,11 +126,11 @@ namespace recovery.Common
 
     public class Local : NotifyBase
     {
-        private string _imageDir = string.Empty;
-        public string ImageDir
+        private string _picGoDir = string.Empty;
+        public string PicGoDir
         {
-            get { return _imageDir; }
-            set { _imageDir = value; DoNotify(); }
+            get { return _picGoDir; }
+            set { _picGoDir = value; DoNotify(); }
         }
     }
 
@@ -148,13 +148,6 @@ namespace recovery.Common
         {
             get { return _password; }
             set { _password = value; DoNotify(); }
-        }
-
-        private string _imageCloudDir = string.Empty;
-        public string ImageCloudDir
-        {
-            get { return _imageCloudDir; }
-            set { _imageCloudDir = value; DoNotify(); }
         }
     }
 }

@@ -320,7 +320,7 @@ module.exports = (ctx) => {
         if(!userConfig){
             ctx.saveConfig({
                 'picgo-plugin-autobackup':{
-                    space: "local",
+                    space: "Local",
                     markFilepath: "Autobackup/mark.json"
                 }
             })

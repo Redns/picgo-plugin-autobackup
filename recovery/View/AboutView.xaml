@@ -24,11 +24,11 @@
                     <RowDefinition/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="350"/>
+                    <ColumnDefinition Width="270"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.Row="0" Grid.Column="0" 
-                           Text="版本号" FontSize="20" Margin="20 0"
+                           Text="当前版本号" FontSize="20" Margin="20 0"
                            VerticalAlignment="Center" HorizontalAlignment="Right"/>
                 <TextBlock Grid.Row="0" Grid.Column="1" 
                            Text="{Binding AboutModel.VersionNow}" FontSize="20" Margin="20 0"
@@ -42,6 +42,10 @@
                             VerticalAlignment="Center" HorizontalAlignment="Left"
                             hc:InfoElement.Placeholder="应用更新检查接口, 默认为 Github Tag"
                             Text="{Binding AboutModel.CheckUrl}" BorderThickness="2"/>
+                <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource ButtonPrimary}" 
+                        Height="40" Width="70" Content="检查更新" Cursor="Hand" 
+                        HorizontalAlignment="Right" Margin="100 0"
+                        Command="{Binding CheckUpdateCommand}"/>
                 <TextBlock Grid.Row="2" Grid.Column="0" 
                            Text="更新下载接口" FontSize="20" Margin="20 0"
                            VerticalAlignment="Center" HorizontalAlignment="Right"/>
@@ -51,16 +55,9 @@
                             hc:InfoElement.Placeholder="应用更新软件下载接口, 默认为 Github Release"
                             Text="{Binding AboutModel.DownloadUrl}" BorderThickness="2"/>
             </Grid>
-            <Grid Grid.Row="1" Height="100" Margin="34 0 0 0" VerticalAlignment="Top">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Style="{StaticResource ButtonPrimary}" 
-                        Height="40" Width="100" Content="检查更新" Cursor="Hand"
-                        Command="{Binding CheckUpdateCommand}"/>
+            <Grid Grid.Row="1" Height="100" VerticalAlignment="Top">
                 <Button Grid.Column="1" Style="{StaticResource ButtonPrimary}" 
-                        Height="40" Width="100" Content="保存设置" Cursor="Hand"
+                        Height="40" Width="250" Content="保存设置" Cursor="Hand"
                         Command="{Binding SaveConfigCommand}"/>
             </Grid>
         </Grid>

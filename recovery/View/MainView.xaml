@@ -8,7 +8,7 @@
         xmlns:hc="https://handyorg.github.io/handycontrol"
         xmlns:model="clr-namespace:recovery.ViewModel" d:DataContext="{d:DesignInstance Type=model:MainViewModel}"
         mc:Ignorable="d"
-        Title="Recovery" Height="650" Width="950" Icon="/Assets/Images/icon.png"
+        Title="Recovery" Height="600" Width="900" Icon="/Assets/Images/icon.png"
         FontFamily="Microsoft YaHei" FontWeight="Medium" FontSize="12"
         WindowStartupLocation="CenterScreen" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}"
         TextOptions.TextFormattingMode="Display" 
@@ -61,7 +61,6 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
                 <RowDefinition/>
-                <RowDefinition Height="50"/>
             </Grid.RowDefinitions>
             <Border Grid.Row="0" Background="#FFF9F9F9" BorderBrush="#DDD" BorderThickness="0 0 0 0.5"
                     MouseLeftButtonDown="StackPanel_MouseLeftButtonDown" CornerRadius="10 10 0 0">
@@ -140,19 +139,10 @@
                     </StackPanel>
                 </Grid>
             </Border>
-            <ContentControl Grid.Row="1" Content="{Binding mainModel.MainContent}"/>
-            <Grid Grid.Row="2">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-
-                <materialDesign:PackIcon Kind="Copyright" Grid.Column="1"
-                                         VerticalAlignment="Center" Height="20" Width="20" Margin="59,0,0,0" RenderTransformOrigin="1.473,0.547"/>
-                <TextBlock Grid.Column="1" Text="2022 MIT License" FontSize="17"
-                           VerticalAlignment="Center" Margin="84,0,50,0"/>
-            </Grid>
+            <ContentControl Grid.Row="1" Content="{Binding MainModel.MainContent}"/>
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right">
+                <StackPanel  VerticalAlignment="Top"/>
+            </ScrollViewer>
         </Grid>
     </Border>
 </Window>

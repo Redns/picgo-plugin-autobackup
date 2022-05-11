@@ -16,18 +16,19 @@ namespace recovery.ViewModel
 {
     public class SettingViewModel
     {
-        public SettingModel settingModel { get; set; }
+        public SettingModel SettingModel { get; set; }
         public CommandBase ChooseMarkfileCommand { get; set; }
         public CommandBase ChooseImageDirCommand { get; set; }
         public CommandBase ChooseOutputDirCommand { get; set; }
         public CommandBase CheckPicgoUrlCommand { get; set; }
+        public CommandBase CheckNutStoreUrlCommand { get; set; }
         public CommandBase ImportConfigCommand { get; set; }
         public CommandBase ExportConfigCommand { get; set; }
         public CommandBase SaveConfigCommand { get; set; }
 
         public SettingViewModel()
         {
-            settingModel = new SettingModel();
+            SettingModel = new SettingModel();
 
             ChooseMarkfileCommand = new CommandBase()
             {
@@ -51,6 +52,12 @@ namespace recovery.ViewModel
             {
                 DoCanExecute = new Func<object, bool>((o) => true),
                 DoExecute = CheckPicgoUrl
+            };
+
+            CheckNutStoreUrlCommand = new CommandBase()
+            {
+                DoCanExecute = new Func<object, bool>((o) => true),
+                DoExecute = CheckNutStoreUrl
             };
 
             ImportConfigCommand = new CommandBase()
@@ -86,7 +93,7 @@ namespace recovery.ViewModel
             };
             if (openFileDialog.ShowDialog() ?? false)
             {
-                settingModel.Settings.Commons.MarkfilePath =  openFileDialog.FileName;
+                SettingModel.Settings.Commons.MarkfilePath =  openFileDialog.FileName;
             }
         }
 
@@ -99,13 +106,13 @@ namespace recovery.ViewModel
         {
             var dlg = new CommonOpenFileDialog
             {
-                Title = "图片备份路径",
+                Title = "PicGo安装路径",
                 IsFolderPicker = true
             };
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                settingModel.Settings.Spaces.Local.ImageDir = dlg.FileName;
+                SettingModel.Settings.Spaces.Local.PicGoDir = dlg.FileName;
             }
         }
 
@@ -124,7 +131,7 @@ namespace recovery.ViewModel
 
             if (dlg.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                settingModel.Settings.Commons.FileOutputDir = dlg.FileName;
+                SettingModel.Settings.Commons.FileOutputDir = dlg.FileName;
             }
         }
 
@@ -135,12 +142,12 @@ namespace recovery.ViewModel
         /// <param name="o"></param>
         public async void CheckPicgoUrl(object o)
         {
-            settingModel.PicgoUrlTestButtonContent = "";
-            settingModel.PicgoUrlTestRunning = System.Windows.Visibility.Visible;
+            SettingModel.PicgoUrlTestButtonContent = "";
+            SettingModel.PicgoUrlTestRunning = System.Windows.Visibility.Visible;
 
             try
             {
-                var resp = await PicgoHelper.UploadImage(settingModel.Settings?.Commons?.PicgoUploadUrl ?? "http://127.0.0.1:36677/upload", new List<string>() { "Assets/Images/Icon.png" });
+                var resp = await PicgoHelper.UploadImage(SettingModel.Settings?.Commons?.PicgoUploadUrl ?? "http://127.0.0.1:36677/upload", new List<string>() { "Assets/Images/Icon.png" });
                 if(resp != null) { Growl.Success("链接 PicGo 成功!"); }
                 else { Growl.Error("链接 PicGo 失败!"); }
             }
@@ -150,8 +157,35 @@ namespace recovery.ViewModel
             }
             finally
             {
-                settingModel.PicgoUrlTestButtonContent = "测 试";
-                settingModel.PicgoUrlTestRunning = System.Windows.Visibility.Hidden;
+                SettingModel.PicgoUrlTestButtonContent = "测 试";
+                SettingModel.PicgoUrlTestRunning = System.Windows.Visibility.Hidden;
+            }
+        }
+
+
+        /// <summary>
+        /// 检查NutStore账号密码是否正确
+        /// </summary>
+        /// <param name="o"></param>
+        public async void CheckNutStoreUrl(object o)
+        {
+            SettingModel.NutStoreUrlTestButtonContent = "";
+            SettingModel.NutStoreUrlTestRunning = System.Windows.Visibility.Visible;
+
+            try
+            {
+                var resp = await PicgoHelper.UploadImage(SettingModel.Settings?.Commons?.PicgoUploadUrl ?? "http://127.0.0.1:36677/upload", new List<string>() { "Assets/Images/Icon.png" });
+                if (resp != null) { Growl.Success("链接 PicGo 成功!"); }
+                else { Growl.Error("链接 PicGo 失败!"); }
+            }
+            catch
+            {
+                Growl.Error("链接 PicGo 失败!");
+            }
+            finally
+            {
+                SettingModel.NutStoreUrlTestButtonContent = "测 试";
+                SettingModel.NutStoreUrlTestRunning = System.Windows.Visibility.Hidden;
             }
         }
 
@@ -164,7 +198,7 @@ namespace recovery.ViewModel
         {
             try
             {
-                File.WriteAllText("appsettings.json", JsonConvert.SerializeObject(settingModel.Settings));
+                File.WriteAllText("appsettings.json", JsonConvert.SerializeObject(SettingModel.Settings));
                 Growl.Success("保存设置成功!");
             }
             catch
@@ -192,8 +226,8 @@ namespace recovery.ViewModel
                     var config = JsonConvert.DeserializeObject<AppSetting>(File.ReadAllText(openFileDialog.FileName));
                     if(config?.Commons != null)
                     {
-                        settingModel.Settings = config;
-                        File.WriteAllText("appsettings.json", JsonConvert.SerializeObject(settingModel.Settings));
+                        SettingModel.Settings = config;
+                        File.WriteAllText("appsettings.json", JsonConvert.SerializeObject(SettingModel.Settings));
                         Growl.Success("设置文件导入成功!");
                     }
                     else
@@ -225,7 +259,7 @@ namespace recovery.ViewModel
             {
                 try
                 {
-                    File.WriteAllText($"{dlg.FileName}/appsettings.json", JsonConvert.SerializeObject(settingModel.Settings));
+                    File.WriteAllText($"{dlg.FileName}/appsettings.json", JsonConvert.SerializeObject(SettingModel.Settings));
                     Growl.Success("设置文件导出成功!");
                 }
                 catch

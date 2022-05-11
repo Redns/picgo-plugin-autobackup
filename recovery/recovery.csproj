@@ -14,7 +14,10 @@
     <None Remove="Assets\Images\file.png" />
     <None Remove="Assets\Images\html.png" />
     <None Remove="Assets\Images\icon.png" />
+    <None Remove="Assets\Images\js.png" />
+    <None Remove="Assets\Images\json.png" />
     <None Remove="Assets\Images\markdown.png" />
+    <None Remove="Assets\Images\txt.png" />
     <None Remove="Assets\Images\word.png" />
   </ItemGroup>
 
@@ -42,7 +45,16 @@
     <Resource Include="Assets\Images\Icon.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Assets\Images\js.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Images\json.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Assets\Images\markdown.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Assets\Images\txt.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Assets\Images\word.png">
@@ -58,6 +70,7 @@
 
   <ItemGroup>
     <Folder Include="Assets\Fonts\" />
+    <Folder Include="Temp\" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

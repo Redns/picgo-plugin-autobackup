@@ -15,11 +15,7 @@ namespace recovery.Common
         // 判断是否可执行
         public bool CanExecute(object? parameter)
         {
-            if(parameter != null)
-            {
-                return DoCanExecute?.Invoke(parameter) == true;
-            }
-            return true;
+            return DoCanExecute?.Invoke(parameter ?? new object()) == true;
         }
 
         // 执行体

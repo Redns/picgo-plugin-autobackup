@@ -11,7 +11,6 @@ using System.Threading.Tasks;
 
 namespace recovery.Common
 {
-    // TODO 使用 HttpClient() 重写
     public class PicgoHelper
     {
         /// <summary>
