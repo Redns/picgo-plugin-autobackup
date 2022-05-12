@@ -41,6 +41,24 @@ const markInfoConstruct = (space, path, url) => {
 
 
 /**
+ * 
+ * @param {文件路径}        path 
+ * @param {待写入的数组}    buffer 
+ * @param {回调函数}        callback 
+ */
+const writeFileRecursive = function(path, buffer, callback){
+    let lastPath = path.substring(0, path.lastIndexOf("/"));
+    fs.mkdir(lastPath, {recursive: true}, (err) => {
+        if (err) return callback(err);
+        fs.writeFile(path, buffer, function(err){
+            if (err) return callback(err);
+            return callback(null);
+        });
+    });
+}
+
+
+/**
  * 备份图片到本地
  * @param {ctx}                     ctx
  * @param {图片备份文件夹}           imagePath 
@@ -48,36 +66,28 @@ const markInfoConstruct = (space, path, url) => {
  */
 function backupInLocal(ctx, imagePath, imgObject){
     // 读取图片数据
-    var img = imgObject.buffer
-    if((!img) && (imgObject.base64Image)){
-        img = Buffer.from(imgObject.base64Image, 'base64')
+    var img = imgObject.bufferCopy
+    if((!img) && (imgObject.base64ImageCopy)){
+        img = Buffer.from(imgObject.base64ImageCopy, 'base64')
     }
 
-    // 备份图片
-    fs.writeFile(`${imagePath}/${imgObject.fileName}`, img, function(err){
-        if(err){
-            ctx.log.error(`[Autobackup]${err}`)
-        }
-    })
+    // 写入文件
+    writeFileRecursive(`${imagePath}/${imgObject.fileName}`, Buffer.from(img), (err)=>{
+        if(err) ctx.log.error(`[Autobackup]本地备份失败，${err.message}`);
+    });
 }
 
 
 /**
  * 创建多级文件夹
- * @param {文件夹路径} dirname 
- * @param {回调函数} callback 
+ * @param {文件夹路径}      dirname 
+ * @param {回调函数}        callback 
  */
  function mkdirs(dirname, callback) {  
-    fs.exists(dirname, function (exists) {  
-        if (exists) {  
-            callback();  
-        } 
-        else {   
-            mkdirs(path.dirname(dirname), function () {  
-                fs.mkdir(dirname, callback);  
-            });  
-        }  
-    });  
+    let lastPath = dirname.substring(0, dirname.lastIndexOf("/"));
+    fs.mkdir(lastPath, {recursive: true}, (err) => {
+        if (err) return callback(err);
+    });
 }  
 
 
@@ -111,10 +121,25 @@ const afterUploadPlugins = {
                 var imgList = ctx.output
                 for(var i in imgList){
                     if(userConfig.space == "Local"){
+                        backupInLocal(ctx, settings.local.imagePath, imgList[i])
                         markInfo.images.push(markInfoConstruct("Local", `${settings.local.imagePath}/${imgList[i].fileName}`, imgList[i].imgUrl))
                     }
                     else if(userConfig.space == "NutStore"){
+                        // 备份至坚果云
+                        const NutStoreUploadRequest = NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)
+                        ctx.Request.request(NutStoreUploadRequest, function (error, response) {
+                            if(error){
+                                ctx.log.error(`[Autobackup]图片上传至坚果云失败，备份路径为：${imagePath}/${imageObject.fileName}`)
+                            }
+                        })
                         markInfo.images.push(markInfoConstruct("NutStore", `${settings.nutstore.imagePath}/${imgList[i].fileName}`, imgList[i].imgUrl))
+                    }
+
+                    if(imgList[i].bufferCopy != undefined){
+                        delete imgList[i].bufferCopy
+                    }
+                    if(imgList[i].base64ImageCopy != undefined){
+                        delete imgList[i].base64ImageCopy
                     }
                 }
                 markInfo.total = markInfo.total + imgList.length
@@ -137,9 +162,9 @@ const afterUploadPlugins = {
  */
 const NutStoreUploadConstruct = (imagePath, imageObject, username, password) => {
     // 读取图片数据
-    var img = imageObject.buffer
-    if((!img) && (imageObject.base64Image)){
-        img = Buffer.from(imageObject.base64Image, 'base64')
+    var img = imageObject.bufferCopy
+    if((!img) && (imageObject.base64ImageCopy)){
+        img = Buffer.from(imageObject.base64ImageCopy, 'base64')
     }
 
     return {
@@ -174,27 +199,20 @@ const handle = async (ctx) => {
 
 
         /**
-         * 备份图片
+         * 备份图片缓冲区，防止uploader上传完成后清空图片数据
          */
         var imgList = ctx.output
         for(var i in imgList){
             try{
-                if(userConfig.space == "Local"){
-                    // 备份至本地文件夹
-                    backupInLocal(ctx, settings.local.imagePath, imgList[i])
+                if(imgList[i].buffer != undefined){
+                    imgList[i].bufferCopy = JSON.parse(JSON.stringify(imgList[i].buffer))
                 }
-                else if(userConfig.space == "NutStore"){
-                    // 备份至坚果云
-                    const NutStoreUploadRequest = NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)
-                    ctx.Request.request(NutStoreUploadRequest, function (error, response) {
-                        if(error){
-                            ctx.log.error(`[Autobackup]图片上传至坚果云失败---${imagePath}/${imageObject.fileName}`)
-                        }
-                    })
+                if(imgList[i].base64Image != undefined){
+                    imgList[i].base64ImageCopy = JSON.parse(JSON.stringify(imgList[i].base64Image))
                 }
             }
             catch(err){
-                ctx.log.error(`[Autobackup]图片备份失败:${imgList[i].fileName}`)
+                ctx.log.error(`[Autobackup]图片${imgList[i].fileName}数组拷贝失败:${err.message}`)
             }
         }
     }    
