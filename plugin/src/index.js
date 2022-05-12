@@ -187,17 +187,11 @@ const NutStoreUploadConstruct = (imagePath, imageObject, username, password) => 
 const handle = async (ctx) => {
     // 加载配置文件
     const userConfig = ctx.getConfig('picgo-plugin-autobackup')
-    const settings = ctx.getConfig('picgo-plugin-autobackup-settings')
 
     if (!userConfig) {
         throw new Error('请配置相关信息!')
     }   
     else{
-        if(settings.local.imagePath != ""){
-            mkdirs(settings.local.imagePath, function(){})
-        }
-
-
         /**
          * 备份图片缓冲区，防止uploader上传完成后清空图片数据
          */
