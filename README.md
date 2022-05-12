@@ -22,7 +22,7 @@
 
 `GUI` 用户直接在 `插件设置` 中搜索`autobackup`下载安装
 
-![image-20220215222022205](https://img1.imgtp.com/2022/02/15/kApL4Y22.png)
+![image-20220512171518932](http://jing-image.test.upcdn.net/2022/05/image-20220512171518932.png)
 
 <br>
 
@@ -32,7 +32,7 @@
 
 2. 点击 `autobackup` 右下角的 `齿轮按钮`，选择 `配置Plugin`
 
-   ![image-20220330213614892](https://imgtp.apqiang.com/2022/03/30/MvYDqfK0.png)
+   ![image-20220512171547075](http://jing-image.test.upcdn.net/2022/05/image-20220512171547075.png)
 
    <br>
 
@@ -60,7 +60,7 @@
 
 2. 点击 `autobackup` 右下角的 `齿轮按钮`，选择 `配置Plugin`
 
-   ![image-20220330213614892](https://imgtp.apqiang.com/2022/03/30/MvYDqfK0.png)
+   ![](http://jing-image.test.upcdn.net/2022/05/image-20220512171547075.png)
 
    <br>
 
