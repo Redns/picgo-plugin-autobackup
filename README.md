@@ -1,8 +1,6 @@
 # picgo-plugin-autobackup
 
-![version: v1.4.9 (shields.io)](https://img.shields.io/badge/version-v1.4.10-green)
-
-> v1.4.9 与 v1.4.10 仅设置中的提示文字有所差别，代码逻辑完全相同
+![version: v1.4.12 (shields.io)](https://img.shields.io/badge/version-v1.4.12-green)
 
 <br>
 
