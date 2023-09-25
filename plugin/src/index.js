@@ -1,4 +1,3 @@
-const { dir } = require('console')
 var fs = require('fs')
 var path = require('path')
 
@@ -42,17 +41,16 @@ const markInfoConstruct = (space, path, url) => {
 
 /**
  * 
- * @param {文件路径}        path 
+ * @param {文件路径}       filePath 
  * @param {待写入的数组}    buffer 
  * @param {回调函数}        callback 
  */
-const writeFileRecursive = function(path, buffer, callback){
-    let lastPath = path.substring(0, path.lastIndexOf("/"));
-    fs.mkdir(lastPath, {recursive: true}, (err) => {
+const writeFileRecursive = function(filePath, buffer, callback){
+    fs.mkdir(path.resolve(filePath, '..'), {recursive: true}, (err) => {
         if (err) return callback(err);
-        fs.writeFile(path, buffer, function(err){
+        fs.writeFile(filePath, buffer, function(err){
             if (err) return callback(err);
-            return callback(null);
+            callback(null);
         });
     });
 }
@@ -72,83 +70,9 @@ function backupInLocal(ctx, imagePath, imgObject){
     }
 
     // 写入文件
-    writeFileRecursive(`${imagePath}/${imgObject.fileName}`, Buffer.from(img), (err)=>{
+    writeFileRecursive(`${imagePath}/${imgObject.fileName}`, Buffer.from(img), (err) => {
         if(err) ctx.log.error(`[Autobackup]本地备份失败，${err.message}`);
     });
-}
-
-
-/**
- * 创建多级文件夹
- * @param {文件夹路径}      dirname 
- * @param {回调函数}        callback 
- */
- function mkdirs(dirname, callback) {  
-    let lastPath = dirname.substring(0, dirname.lastIndexOf("/"));
-    fs.mkdir(lastPath, {recursive: true}, (err) => {
-        if (err) return callback(err);
-    });
-}  
-
-
-/**
- * 获取图片链接
- */
-const afterUploadPlugins = {
-    handle(ctx){
-        // 加载配置文件
-        const userConfig = ctx.getConfig('picgo-plugin-autobackup')
-        const settings = ctx.getConfig('picgo-plugin-autobackup-settings')                
-        
-
-        /**
-         * 加载mark.json文件
-         */
-        fs.readFile(userConfig.markFilepath, function(err, data){
-            if(err){
-                if(err.code === "ENOENT"){
-                    fs.writeFileSync(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", function(){})
-                }
-                else{
-                    ctx.log.error(`[Autobackup]加载 mark.json 文件失败`)
-                }
-            }
-            else if(data){
-                // 加载标记文件
-                var markInfo =  JSON.parse(data.toString())
-
-                // 修改标记文件
-                var imgList = ctx.output
-                for(var i in imgList){
-                    if(userConfig.space == "Local"){
-                        backupInLocal(ctx, settings.local.imagePath, imgList[i])
-                        markInfo.images.push(markInfoConstruct("Local", `${settings.local.imagePath}/${imgList[i].fileName}`, imgList[i].imgUrl))
-                    }
-                    else if(userConfig.space == "NutStore"){
-                        // 备份至坚果云
-                        const NutStoreUploadRequest = NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)
-                        ctx.Request.request(NutStoreUploadRequest, function (error, response) {
-                            if(error){
-                                ctx.log.error(`[Autobackup]图片上传至坚果云失败，备份路径为：${imagePath}/${imageObject.fileName}`)
-                            }
-                        })
-                        markInfo.images.push(markInfoConstruct("NutStore", `${settings.nutstore.imagePath}/${imgList[i].fileName}`, imgList[i].imgUrl))
-                    }
-
-                    if(imgList[i].bufferCopy != undefined){
-                        delete imgList[i].bufferCopy
-                    }
-                    if(imgList[i].base64ImageCopy != undefined){
-                        delete imgList[i].base64ImageCopy
-                    }
-                }
-                markInfo.total = markInfo.total + imgList.length
-
-                // 写入标记文件
-                fs.writeFileSync(userConfig.markFilepath, JSON.stringify(markInfo))
-            }
-        })
-    }
 }
 
 
@@ -166,15 +90,98 @@ const NutStoreUploadConstruct = (imagePath, imageObject, username, password) => 
     if((!img) && (imageObject.base64ImageCopy)){
         img = Buffer.from(imageObject.base64ImageCopy, 'base64')
     }
-
+    // 构造上传请求
     return {
-        'method': 'PUT',
-        'url': `https://dav.jianguoyun.com/dav/${imagePath}/${imageObject.fileName}`,
-        'headers': {
+        method: 'put',
+        url: `https://dav.jianguoyun.com/dav/${imagePath}/${imageObject.fileName}`,
+        headers: {
           'Authorization': `Basic ${Buffer.from(`${username}:${password}`, 'utf-8').toString('base64')}`,
           'Content-Type': `image/${imageObject.extname.substring(1)}`
         },
-        body: img
+        data: Buffer.from(img.data),
+        resolveWithFullResponse: true
+    }
+}
+
+
+/**
+ * 获取图片链接
+ */
+const afterUploadPlugins = {
+    handle(ctx){
+        // 加载配置文件
+        const userConfig = ctx.getConfig('picgo-plugin-autobackup')
+        const settings = ctx.getConfig('picgo-plugin-autobackup-settings')             
+        // 加载 mark.json
+        fs.readFile(userConfig.markFilepath, async function(err, data){
+            if(err){
+                if(err.code === "ENOENT"){
+                    // 文件不存在
+                    // 判断设置的 mark 文件路径是否规范
+                    if(!userConfig.markFilepath.endsWith('mark.json')){
+                        ctx.saveConfig({
+                            'picgo-plugin-autobackup':{
+                                space: userConfig.space,
+                                markFilepath: path.join(userConfig.markFilepath, 'mark.json')
+                            }
+                        })
+                        userConfig.markFilepath = path.join(userConfig.markFilepath, 'mark.json')
+                    }
+                    // 创建 mark 文件
+                    writeFileRecursive(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", (err) => {
+                        if(err) ctx.log.info(`[AutoBackup] mark.json 创建失败，${err.message}`)
+                    })
+                }
+                else if(err.code === "EISDIR"){
+                    // 设置的 mark 文件路径为文件夹
+                    ctx.saveConfig({
+                        'picgo-plugin-autobackup':{
+                            space: userConfig.space,
+                            markFilepath: path.join(userConfig.markFilepath, 'mark.json')
+                        }
+                    })
+                    userConfig.markFilepath = path.join(userConfig.markFilepath, 'mark.json')
+                    // 创建 mark 文件
+                    writeFileRecursive(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", (err) => {
+                        if(err) ctx.log.error(`[AutoBackup] mark.json 创建失败，${err.message}`)
+                    })
+                }
+                else{
+                    ctx.log.error(`[Autobackup] mark.json 加载失败，${err.message}`)
+                }
+            }
+            // 修改 mark.json
+            if(data){
+                // 加载标记文件
+                var markInfo =  JSON.parse(data.toString())
+                // 修改标记文件
+                var imgList = ctx.output
+                for(var i in imgList){
+                    if(userConfig.space == "Local"){
+                        backupInLocal(ctx, settings.local.imagePath, imgList[i])
+                    }
+                    else if(userConfig.space == "NutStore"){
+                        // 备份至坚果云
+                        await ctx.request(NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)).then((nutstoreUploadResponse) =>{
+                            
+                        }).catch((error) => {
+                            ctx.log.error(`[AutoBackup] 坚果云备份失败，${error.message}`)
+                        })
+                    }
+                    markInfo.images.push(markInfoConstruct(userConfig.space, `${settings.local.imagePath}/${imgList[i].fileName}`, imgList[i].imgUrl))
+                    // 清空图片缓冲区
+                    if(imgList[i].bufferCopy != undefined){
+                        delete imgList[i].bufferCopy
+                    }
+                    if(imgList[i].base64ImageCopy != undefined){
+                        delete imgList[i].base64ImageCopy
+                    }
+                }
+                markInfo.total = markInfo.total + imgList.length
+                // 更新标记文件
+                fs.writeFileSync(userConfig.markFilepath, JSON.stringify(markInfo))
+            }
+        })
     }
 }
 
@@ -214,6 +221,11 @@ const handle = async (ctx) => {
 }
 
 
+/**
+ * GUI 设置
+ * @param {*} ctx 
+ * @returns 
+ */
 const guiMenu = ctx => {
     return [
         {
