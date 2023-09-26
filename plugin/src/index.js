@@ -77,11 +77,30 @@ function backupInLocal(ctx, imagePath, imgObject){
 
 
 /**
+ * 创建坚果云文件夹
+ * @param {文件夹路径} path 
+ * @param {用户邮箱} username 
+ * @param {应用密码} password 
+ * @returns 
+ */
+const NutStoreDirectoryCreateConstruct = (path, username, password) => {
+    return {
+        method: 'mkcol',
+        url: `https://dav.jianguoyun.com/dav/${path}`,
+        headers: {
+          'Authorization': `Basic ${Buffer.from(`${username}:${password}`, 'utf-8').toString('base64')}`
+        },
+        resolveWithFullResponse: true
+    }
+}
+
+
+/**
  * 构建坚果云上传文件请求
  * @param {图片备份文件夹}      imagePath 
  * @param {图片上传数组对象}    imageObject 
- * @param {坚果云用户名}        username 
- * @param {坚果云应用密码}      password 
+ * @param {用户邮箱}        username 
+ * @param {应用密码}      password 
  * @returns 
  */
 const NutStoreUploadConstruct = (imagePath, imageObject, username, password) => {
@@ -157,15 +176,25 @@ const afterUploadPlugins = {
                 // 修改标记文件
                 var imgList = ctx.output
                 for(var i in imgList){
-                    if(userConfig.space == "Local"){
+                    if(userConfig.space === "Local"){
                         backupInLocal(ctx, settings.local.imagePath, imgList[i])
                     }
-                    else if(userConfig.space == "NutStore"){
+                    else if(userConfig.space === "NutStore"){
                         // 备份至坚果云
-                        await ctx.request(NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)).then((nutstoreUploadResponse) =>{
+                        await ctx.request(NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)).then(async (nutstoreUploadResponse) =>{
                             
-                        }).catch((error) => {
-                            ctx.log.error(`[AutoBackup] 坚果云备份失败，${error.message}`)
+                        }).catch(async (error) => {
+                            if(error.statusCode === 409){
+                                // 文件夹不存在
+                                await ctx.request(NutStoreDirectoryCreateConstruct(settings.nutstore.imagePath, settings.nutstore.username, settings.nutstore.password)).then(async (nutstoreDirectoryCreateResponse) => {
+                                    await ctx.request(NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password))
+                                }).catch((error) => {
+                                    ctx.log.error(`[AutoBackup] 坚果云备份指定的文件夹不存在且自动创建失败，${error.message}`)
+                                })
+                            }
+                            else{
+                                ctx.log.error(`[AutoBackup] 坚果云备份失败，${error.message}`)
+                            }
                         })
                     }
                     markInfo.images.push(markInfoConstruct(userConfig.space, `${settings.local.imagePath}/${imgList[i].fileName}`, imgList[i].imgUrl))
@@ -253,7 +282,7 @@ const guiMenu = ctx => {
                         }
                     })
                 }
-                else if(settings.local.imagePath == ""){
+                else if(settings.local.imagePath === ""){
                     await guiApi.showMessageBox({
                         title: 'Autobackup',
                         message: '备份文件夹不能为空！',
