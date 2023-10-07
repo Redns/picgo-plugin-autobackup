@@ -1,0 +1,36 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v6.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v6.0": {
+      "Recovery.Cmd/1.0.0": {
+        "dependencies": {
+          "Recovery.Core": "1.0.0"
+        },
+        "runtime": {
+          "Recovery.Cmd.dll": {}
+        }
+      },
+      "Recovery.Core/1.0.0": {
+        "runtime": {
+          "recovery.core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Recovery.Cmd/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Recovery.Core/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}

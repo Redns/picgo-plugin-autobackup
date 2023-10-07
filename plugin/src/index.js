@@ -70,7 +70,7 @@ function backupInLocal(ctx, imagePath, imgObject){
     }
 
     // 写入文件
-    writeFileRecursive(`${imagePath}/${imgObject.fileName}`, Buffer.from(img), (err) => {
+    writeFileRecursive(path.join(imagePath, imgObject.filename), Buffer.from(img), (err) => {
         if(err) ctx.log.error(`[Autobackup]本地备份失败，${err.message}`);
     });
 }
@@ -112,7 +112,7 @@ const NutStoreUploadConstruct = (imagePath, imageObject, username, password) => 
     // 构造上传请求
     return {
         method: 'put',
-        url: `https://dav.jianguoyun.com/dav/${imagePath}/${imageObject.fileName}`,
+        url: `https://dav.jianguoyun.com/dav/${imagePath}/${imageObject.filename}`,
         headers: {
           'Authorization': `Basic ${Buffer.from(`${username}:${password}`, 'utf-8').toString('base64')}`,
           'Content-Type': `image/${imageObject.extname.substring(1)}`
@@ -178,16 +178,18 @@ const afterUploadPlugins = {
                 for(var i in imgList){
                     if(userConfig.space === "Local"){
                         backupInLocal(ctx, settings.local.imagePath, imgList[i])
+                        markInfo.images.push(markInfoConstruct(userConfig.space, path.join(settings.local.imagePath, imgList[i].filename), imgList[i].imgUrl))
                     }
                     else if(userConfig.space === "NutStore"){
                         // 备份至坚果云
-                        await ctx.request(NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)).then(async (nutstoreUploadResponse) =>{
-                            
+                        await ctx.request(NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)).then(() =>{
+                            markInfo.images.push(markInfoConstruct(userConfig.space, `https://dav.jianguoyun.com/dav/${settings.nutstore.imagePath}/${imgList[i].filename}`, imgList[i].imgUrl))
                         }).catch(async (error) => {
                             if(error.statusCode === 409){
                                 // 文件夹不存在
-                                await ctx.request(NutStoreDirectoryCreateConstruct(settings.nutstore.imagePath, settings.nutstore.username, settings.nutstore.password)).then(async (nutstoreDirectoryCreateResponse) => {
+                                await ctx.request(NutStoreDirectoryCreateConstruct(settings.nutstore.imagePath, settings.nutstore.username, settings.nutstore.password)).then(async () => {
                                     await ctx.request(NutStoreUploadConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password))
+                                    markInfo.images.push(markInfoConstruct(userConfig.space, `https://dav.jianguoyun.com/dav/${settings.nutstore.imagePath}/${imgList[i].filename}`, imgList[i].imgUrl))
                                 }).catch((error) => {
                                     ctx.log.error(`[AutoBackup] 坚果云备份指定的文件夹不存在且自动创建失败，${error.message}`)
                                 })
@@ -197,7 +199,6 @@ const afterUploadPlugins = {
                             }
                         })
                     }
-                    markInfo.images.push(markInfoConstruct(userConfig.space, `${settings.local.imagePath}/${imgList[i].fileName}`, imgList[i].imgUrl))
                     // 清空图片缓冲区
                     if(imgList[i].bufferCopy != undefined){
                         delete imgList[i].bufferCopy
@@ -242,7 +243,7 @@ const handle = async (ctx) => {
                 }
             }
             catch(err){
-                ctx.log.error(`[Autobackup]图片${imgList[i].fileName}数组拷贝失败:${err.message}`)
+                ctx.log.error(`[Autobackup]图片${imgList[i].filename}数组拷贝失败:${err.message}`)
             }
         }
     }    

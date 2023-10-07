@@ -1,0 +1,96 @@
+{
+  "version": 3,
+  "targets": {
+    "net6.0": {
+      "Recovery.Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v6.0",
+        "compile": {
+          "bin/placeholder/Recovery.Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Recovery.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Recovery.Core/1.0.0": {
+      "type": "project",
+      "path": "../recovery.core/Recovery.Core.csproj",
+      "msbuildProject": "../recovery.core/Recovery.Core.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net6.0": [
+      "Recovery.Core >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\26892\\.nuget\\packages\\": {},
+    "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.cmd\\recovery.cmd.csproj",
+      "projectName": "recovery.cmd",
+      "projectPath": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.cmd\\recovery.cmd.csproj",
+      "packagesPath": "C:\\Users\\26892\\.nuget\\packages\\",
+      "outputPath": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.cmd\\obj\\",
+      "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
+      "configFilePaths": [
+        "C:\\Users\\26892\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+      ],
+      "originalTargetFrameworks": [
+        "net6.0"
+      ],
+      "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net6.0": {
+          "targetAlias": "net6.0",
+          "projectReferences": {
+            "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.core\\Recovery.Core.csproj": {
+              "projectPath": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.core\\Recovery.Core.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "net6.0": {
+        "targetAlias": "net6.0",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

@@ -1,0 +1,65 @@
+﻿<UserControl x:Class="recovery.View.AboutView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:hc="https://handyorg.github.io/handycontrol"
+             xmlns:local="clr-namespace:recovery.View" xmlns:viewmodel="clr-namespace:recovery.ViewModel" d:DataContext="{d:DesignInstance Type=viewmodel:AboutViewModel}"
+             mc:Ignorable="d" 
+             Height="550" Width="950"
+            FontFamily="Microsoft YaHei"  FontSize="12"
+            TextOptions.TextFormattingMode="Display" 
+            TextOptions.TextRenderingMode="ClearType"
+            TextOptions.TextHintingMode="Fixed" UseLayoutRounding="True">
+    <Border CornerRadius="0 0 10 10">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="350"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid Height="240">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="270"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" 
+                           Text="当前版本号" FontSize="20" Margin="20 0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Row="0" Grid.Column="1" 
+                           Text="{Binding AboutModel.VersionNow}" FontSize="20" Margin="20 0"
+                           VerticalAlignment="Center" HorizontalAlignment="Left"
+                           FontFamily="Times New Roman" FontWeight="Bold" FontStyle="Italic"/>
+                <TextBlock Grid.Row="1" Grid.Column="0" 
+                           Text="更新检查接口" FontSize="20" Margin="20 0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <hc:TextBox Grid.Row="1" Grid.Column="1" 
+                            Height="40" Width="480" Margin="20 0" FontSize="15"
+                            VerticalAlignment="Center" HorizontalAlignment="Left"
+                            hc:InfoElement.Placeholder="应用更新检查接口, 默认为 Github Tag"
+                            Text="{Binding AboutModel.CheckUrl}" BorderThickness="2"/>
+                <Button Grid.Row="1" Grid.Column="1" Style="{StaticResource ButtonPrimary}" 
+                        Height="40" Width="70" Content="检查更新" Cursor="Hand" 
+                        HorizontalAlignment="Right" Margin="100 0"
+                        Command="{Binding CheckUpdateCommand}"/>
+                <TextBlock Grid.Row="2" Grid.Column="0" 
+                           Text="更新下载接口" FontSize="20" Margin="20 0"
+                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <hc:TextBox Grid.Row="2" Grid.Column="1" 
+                            Height="40" Width="480" Margin="20 0" FontSize="15"
+                            VerticalAlignment="Center" HorizontalAlignment="Left"
+                            hc:InfoElement.Placeholder="应用更新软件下载接口, 默认为 Github Release"
+                            Text="{Binding AboutModel.DownloadUrl}" BorderThickness="2"/>
+            </Grid>
+            <Grid Grid.Row="1" Height="100" VerticalAlignment="Top">
+                <Button Grid.Column="1" Style="{StaticResource ButtonPrimary}" 
+                        Height="40" Width="250" Content="保存设置" Cursor="Hand"
+                        Command="{Binding SaveConfigCommand}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

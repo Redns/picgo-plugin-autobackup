@@ -1,0 +1,163 @@
+﻿<UserControl x:Class="recovery.View.SettingView"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:recovery.View"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:hc="https://handyorg.github.io/handycontrol"
+      xmlns:model="clr-namespace:recovery.ViewModel" d:DataContext="{d:DesignInstance Type=model:SettingViewModel}"
+      mc:Ignorable="d" 
+      Height="550" Width="950"
+      FontFamily="Microsoft YaHei"  FontSize="12"
+      TextOptions.TextFormattingMode="Display" 
+      TextOptions.TextRenderingMode="ClearType"
+      TextOptions.TextHintingMode="Fixed" UseLayoutRounding="True">
+    <Border Margin="5" CornerRadius="0 0 10 10" Background="#FFF9F9F9">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="190"/>
+                <RowDefinition Height="70"/>
+                <RowDefinition Height="70"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <!--<ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Hidden" HorizontalAlignment="Right">
+                <StackPanel  VerticalAlignment="Top"/>
+            </ScrollViewer>-->
+            <TabControl Grid.Row="0" Margin="-5 0 0 0" Style="{StaticResource TabControlInLine}" Background="#FFF9F9F9" BorderThickness="0" FontSize="14">
+                <TabItem Header="本地恢复" Cursor="Hand" Background="#FFF9F9F9">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="70"/>
+                            <RowDefinition Height="70"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="300"/>
+                        </Grid.ColumnDefinitions>
+                        <hc:TextBox Grid.Row="1" Grid.Column="0" Height="40" Width="480" Margin="20 0" FontSize="15"
+                                    VerticalAlignment="Center" HorizontalAlignment="Right"
+                                    hc:InfoElement.Placeholder="Mark 文件路径"
+                                    Text="{Binding SettingModel.Settings.Commons.MarkfilePath}" BorderThickness="2"/>
+                        <Button 
+                            Grid.Row="1" Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14"
+                            Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                            Content="选 择" Command="{Binding ChooseMarkfileCommand}"/>
+                        <hc:TextBox Grid.Row="2" Grid.Column="0" Height="40" Width="480" Margin="146,0,0,0" FontSize="15"
+                                    VerticalAlignment="Center" HorizontalAlignment="Left"
+                                    hc:InfoElement.Placeholder="PicGo 安装路径"
+                                    Text="{Binding SettingModel.Settings.Spaces.Local.PicGoDir}" BorderThickness="2"/>
+                        <Button Grid.Row="2" Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14"
+                                Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                                Content="选 择" Command="{Binding ChooseImageDirCommand}"/>
+                    </Grid>
+                </TabItem>
+                <TabItem Header="坚果云恢复" Cursor="Hand" Background="#FFF9F9F9">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition Height="70"/>
+                            <RowDefinition Height="70"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition Width="300"/>
+                        </Grid.ColumnDefinitions>
+                        <hc:TextBox Grid.Row="1" Grid.Column="0" Height="40" Width="480" Margin="20 0" FontSize="15"
+                                    VerticalAlignment="Center" HorizontalAlignment="Right"
+                                    hc:InfoElement.Placeholder="Mark 文件路径"
+                                    Text="{Binding SettingModel.Settings.Commons.MarkfilePath}" BorderThickness="2"/>
+                        <Button 
+                            Grid.Row="1" Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14"
+                            Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                            Content="选 择" Command="{Binding ChooseMarkfileCommand}"/>
+                        <hc:TextBox Grid.Row="2" Grid.Column="0" Height="40" Width="220" Margin="145 0" FontSize="15"
+                                    VerticalAlignment="Center" HorizontalAlignment="Left"
+                                    hc:InfoElement.Placeholder="账号"
+                                    Text="{Binding SettingModel.Settings.Spaces.NutStore.Username}" BorderThickness="2"/>
+                        <hc:TextBox Grid.Row="2" Grid.Column="0" Height="40" Width="220" Margin="406,0,0,0" FontSize="15"
+                                    VerticalAlignment="Center" HorizontalAlignment="Left"
+                                    hc:InfoElement.Placeholder="应用密码" BorderThickness="2"
+                                    Text="{Binding SettingModel.Settings.Spaces.NutStore.Password}"/>
+                        <Button Grid.Row="2" Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14" Cursor="Hand"
+                                Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                                Content="{Binding SettingModel.NutStoreUrlTestButtonContent}"
+                                Command="{Binding CheckNutStoreUrlCommand}"/>
+                        <ProgressBar
+                            Grid.Row="2" Grid.Column="1" Margin="75,30,215,31"
+                            Style="{StaticResource MaterialDesignCircularProgressBar}" Value="50" IsIndeterminate="True" RenderTransformOrigin="4.81,0.64" Visibility="{Binding SettingModel.NutStoreUrlTestRunning}"/>
+                    </Grid>
+                </TabItem>
+            </TabControl>
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
+                <hc:TextBox Grid.Column="0" Height="40" Width="480" Margin="20 0" FontSize="15"
+                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                            hc:InfoElement.Placeholder="文件导出路径"
+                            Text="{Binding SettingModel.Settings.Commons.FileOutputDir}" BorderThickness="2"/>
+                <Button
+                    Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14" Cursor="Hand"
+                    Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                    Content="选 择" Command="{Binding ChooseOutputDirCommand}"/>
+            </Grid>
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="300"/>
+                </Grid.ColumnDefinitions>
+                <hc:TextBox Grid.Column="0" Height="40" Width="480" Margin="20 0" FontSize="15"
+                            VerticalAlignment="Center" HorizontalAlignment="Right"
+                            hc:InfoElement.Placeholder="PicGo 上传接口"
+                            Text="{Binding SettingModel.Settings.Commons.PicgoUploadUrl}" BorderThickness="2"/>
+                <Button Grid.Column="1" Width="90" Height="40" Margin="40 0 0 0" FontSize="14" Cursor="Hand"
+                        Style="{StaticResource ButtonPrimary}" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                        Content="{Binding SettingModel.PicgoUrlTestButtonContent}"
+                        Command="{Binding CheckPicgoUrlCommand}">
+                </Button>
+                <ProgressBar
+                    Grid.Column="1" Margin="75,30,215,31"
+                    Style="{StaticResource MaterialDesignCircularProgressBar}" Value="50" IsIndeterminate="True" RenderTransformOrigin="4.81,0.64" Visibility="{Binding SettingModel.PicgoUrlTestRunning}"/>
+            </Grid>
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Height="45" Width="150" Margin="20 0" Cursor="Hand"
+                    Style="{StaticResource MaterialDesignRaisedLightButton}"
+                    HorizontalAlignment="Right" materialDesign:ButtonAssist.CornerRadius="5"
+                    Command="{Binding ImportConfigCommand}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="FileImport" Width="28" Height="28"/>
+                        <TextBlock Text=" 导入设置" VerticalAlignment="Center" FontSize="17"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="1" Height="45" Width="150" Margin="80 0" Cursor="Hand"
+                    Style="{StaticResource MaterialDesignRaisedLightButton}" HorizontalAlignment="Left"
+                    materialDesign:ButtonAssist.CornerRadius="5"
+                    Command="{Binding ExportConfigCommand}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="FileExport" Width="28" Height="28"/>
+                        <TextBlock Text=" 导出设置" VerticalAlignment="Center" FontSize="17"/>
+                    </StackPanel>
+                </Button>
+                <Button Grid.Column="1" Height="45" Width="150" Margin="307,15,0,16" Cursor="Hand"
+                    Style="{StaticResource MaterialDesignRaisedLightButton}" HorizontalAlignment="Left"
+                    materialDesign:ButtonAssist.CornerRadius="5"
+                    Command="{Binding SaveConfigCommand}"
+                    IsEnabled="{Binding DataContext.ControlsEnabled, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}" Grid.ColumnSpan="2">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <materialDesign:PackIcon Kind="ContentSaveCog" Width="28" Height="28"/>
+                        <TextBlock Text=" 保存设置" VerticalAlignment="Center" FontSize="17"/>
+                    </StackPanel>
+                </Button>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>
