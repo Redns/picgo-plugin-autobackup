@@ -4,7 +4,7 @@ var path = require('path')
 const pluginConfig = (ctx) => {
     const userConfig = ctx.getConfig('picgo-plugin-autobackup')
     if (!userConfig) {
-        throw new Error("[AutoBackup] 配置文件损坏")
+        throw new Error("[AutoBackup] 配置文件缺失")
     }
     // 获取配置文件中所有的 space 名称
     let spaceNames = []
@@ -76,9 +76,29 @@ function backupInLocal(ctx, imagePath, imgObject){
     }
 
     // 写入文件
-    writeFileRecursive(path.join(imagePath, imgObject.filename), Buffer.from(img), (err) => {
+    writeFileRecursive(path.join(imagePath, imgObject.uniqueName), Buffer.from(img), (err) => {
         if(err) ctx.log.error(`[Autobackup]本地备份失败，${err.message}`);
     });
+}
+
+
+/**
+ * URL 拼接
+ * @param {待拼接的链接} links 
+ * @returns 
+ */
+function spliceLinks(links){
+    let link = ''
+    for(var i in links){
+        if(links[i].startsWith('/')){
+            links[i] = links[i].slice(1)
+        }
+        if(links[i].endsWith('/')){
+            links[i] = links[i].slice(0, links[i].length - 1)
+        }
+        link += `${links[i]}/`
+    }
+    return link.slice(0, link.length - 1)
 }
 
 
@@ -93,7 +113,7 @@ function backupInLocal(ctx, imagePath, imgObject){
 const WebDAVDirectoryCreateRequestConstruct = (url, path, username, password) => {
     return {
         method: 'mkcol',
-        url: `${url}/${path}`,
+        url: spliceLinks([url, path]),
         headers: {
           'Authorization': `Basic ${Buffer.from(`${username}:${password}`, 'utf-8').toString('base64')}`
         },
@@ -119,7 +139,7 @@ const WebDAVUploadRequestConstruct = (url, imageDirectory, imageObject, username
     // 构造上传请求
     return {
         method: 'put',
-        url: `${url}/${imageDirectory}/${imageObject.filename}`,
+        url: spliceLinks([url, imageDirectory, imageObject.uniqueName]),
         headers: {
           'Authorization': `Basic ${Buffer.from(`${username}:${password}`, 'utf-8').toString('base64')}`,
           'Content-Type': `image/${imageObject.extname.substring(1)}`
@@ -135,129 +155,125 @@ const WebDAVUploadRequestConstruct = (url, imageDirectory, imageObject, username
  */
 const afterUploadPlugins = {
     handle(ctx){
-        // // 加载配置文件
-        // const userConfig = ctx.getConfig('picgo-plugin-autobackup')
-        // const settings = ctx.getConfig('picgo-plugin-autobackup-settings')             
-        // // 加载 mark.json
-        // fs.readFile(userConfig.markFilepath, async function(err, data){
-        //     if(err){
-        //         if(err.code === "ENOENT"){
-        //             // 文件不存在
-        //             // 判断设置的 mark 文件路径是否规范
-        //             if(!userConfig.markFilepath.endsWith('mark.json')){
-        //                 ctx.saveConfig({
-        //                     'picgo-plugin-autobackup':{
-        //                         space: userConfig.space,
-        //                         markFilepath: path.join(userConfig.markFilepath, 'mark.json')
-        //                     }
-        //                 })
-        //                 userConfig.markFilepath = path.join(userConfig.markFilepath, 'mark.json')
-        //             }
-        //             // 创建 mark 文件
-        //             writeFileRecursive(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", (err) => {
-        //                 if(err) ctx.log.info(`[AutoBackup] mark.json 创建失败，${err.message}`)
-        //             })
-        //         }
-        //         else if(err.code === "EISDIR"){
-        //             // 设置的 mark 文件路径为文件夹
-        //             ctx.saveConfig({
-        //                 'picgo-plugin-autobackup':{
-        //                     space: userConfig.space,
-        //                     markFilepath: path.join(userConfig.markFilepath, 'mark.json')
-        //                 }
-        //             })
-        //             userConfig.markFilepath = path.join(userConfig.markFilepath, 'mark.json')
-        //             // 创建 mark 文件
-        //             writeFileRecursive(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", (err) => {
-        //                 if(err) ctx.log.error(`[AutoBackup] mark.json 创建失败，${err.message}`)
-        //             })
-        //         }
-        //         else{
-        //             ctx.log.error(`[Autobackup] mark.json 加载失败，${err.message}`)
-        //         }
-        //     }
-        //     // 修改 mark.json
-        //     if(data){
-        //         // 加载标记文件
-        //         var markInfo =  JSON.parse(data.toString())
-        //         // 修改标记文件
-        //         var imgList = ctx.output
-        //         for(var i in imgList){
-        //             if(userConfig.space === "Local"){
-        //                 backupInLocal(ctx, settings.local.imagePath, imgList[i])
-        //                 markInfo.images.push(markInfoConstruct(userConfig.space, path.join(settings.local.imagePath, imgList[i].filename), imgList[i].imgUrl))
-        //             }
-        //             else if(userConfig.space === "NutStore"){
-        //                 // 备份至坚果云
-        //                 await ctx.request(WebDAVUploadRequestConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password)).then(() =>{
-        //                     markInfo.images.push(markInfoConstruct(userConfig.space, `https://dav.jianguoyun.com/dav/${settings.nutstore.imagePath}/${imgList[i].filename}`, imgList[i].imgUrl))
-        //                 }).catch(async (error) => {
-        //                     if(error.statusCode === 409){
-        //                         // 文件夹不存在
-        //                         await ctx.request(WebDAVDirectoryCreateRequestConstruct(settings.nutstore.imagePath, settings.nutstore.username, settings.nutstore.password)).then(async () => {
-        //                             await ctx.request(WebDAVUploadRequestConstruct(settings.nutstore.imagePath, imgList[i], settings.nutstore.username, settings.nutstore.password))
-        //                             markInfo.images.push(markInfoConstruct(userConfig.space, `https://dav.jianguoyun.com/dav/${settings.nutstore.imagePath}/${imgList[i].filename}`, imgList[i].imgUrl))
-        //                         }).catch((error) => {
-        //                             ctx.log.error(`[AutoBackup] 坚果云备份指定的文件夹不存在且自动创建失败，${error.message}`)
-        //                         })
-        //                     }
-        //                     else{
-        //                         ctx.log.error(`[AutoBackup] 坚果云备份失败，${error.message}`)
-        //                     }
-        //                 })
-        //             }
-        //             // 清空图片缓冲区
-        //             if(imgList[i].bufferCopy != undefined){
-        //                 delete imgList[i].bufferCopy
-        //             }
-        //             if(imgList[i].base64ImageCopy != undefined){
-        //                 delete imgList[i].base64ImageCopy
-        //             }
-        //         }
-        //         markInfo.total = markInfo.total + imgList.length
-        //         // 更新标记文件
-        //         fs.writeFileSync(userConfig.markFilepath, JSON.stringify(markInfo))
-        //     }
-        // })
+        // 加载配置文件
+        const userConfig = ctx.getConfig('picgo-plugin-autobackup')
+        const spaceConfig = userConfig.spaces.find(s => s.name === userConfig.currentSpace)  
+        if(!spaceConfig){
+            throw new Error(`[AutoBackup] 未找到备份空间 ${userConfig.currentSpace} 配置`)
+        }       
+        // 加载 mark.json
+        fs.readFile(userConfig.markFilepath, async function(err, data){
+            if(err){
+                if(err.code === "ENOENT"){
+                    // 文件不存在
+                    // 判断设置的 mark 文件路径是否规范
+                    if(!userConfig.markFilepath.endsWith('mark.json')){
+                        userConfig.markFilepath = path.join(userConfig.markFilepath, 'mark.json')
+                        ctx.saveConfig({
+                            'picgo-plugin-autobackup': userConfig
+                        })
+                    }
+                    // 创建 mark 文件
+                    writeFileRecursive(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", (err) => {
+                        if(err) ctx.log.info(`[AutoBackup] mark.json 创建失败，${err.message}`)
+                    })
+                }
+                else if(err.code === "EISDIR"){
+                    // 设置的 mark 文件路径为文件夹
+                    userConfig.markFilepath = path.join(userConfig.markFilepath, 'mark.json')
+                    ctx.saveConfig({
+                        'picgo-plugin-autobackup': userConfig
+                    })
+                    // 创建 mark 文件
+                    writeFileRecursive(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", (err) => {
+                        if(err) ctx.log.error(`[AutoBackup] mark.json 创建失败，${err.message}`)
+                    })
+                }
+                else{
+                    ctx.log.error(`[Autobackup] mark.json 加载失败，${err.message}`)
+                }
+            }
+            // 修改 mark.json
+            if(data){
+                // 加载标记文件
+                var markInfo =  JSON.parse(data.toString())
+                // 修改标记文件
+                var imgList = ctx.output
+                for(var i in imgList){
+                    if(spaceConfig.type.toLowerCase() === 'local'){
+                        // 备份至本地文件夹
+                        backupInLocal(ctx, spaceConfig.config.path, imgList[i])
+                        markInfo.images.push(markInfoConstruct(spaceConfig.name, path.join(spaceConfig.config.path, imgList[i].uniqueName), imgList[i].imgUrl))
+                    }
+                    else if(spaceConfig.type.toLowerCase() === "webdav"){
+                        // 备份至 WebDAV
+                        const imageAccessUrl = spliceLinks([spaceConfig.config.api, spaceConfig.config.path, imgList[i].uniqueName])
+                        await ctx.request(WebDAVUploadRequestConstruct(spaceConfig.config.api, spaceConfig.config.path, imgList[i], spaceConfig.config.username, spaceConfig.config.password)).then(() =>{
+                            markInfo.images.push(markInfoConstruct(spaceConfig.name, imageAccessUrl, imgList[i].imgUrl))
+                        }).catch(async (error) => {
+                            if(error.statusCode === 409){
+                                // 文件夹不存在
+                                await ctx.request(WebDAVDirectoryCreateRequestConstruct(spaceConfig.config.api, spaceConfig.config.path, spaceConfig.config.username, spaceConfig.config.password)).then(async () => {
+                                    await ctx.request(WebDAVUploadRequestConstruct(spaceConfig.config.path, imgList[i], spaceConfig.config.username, spaceConfig.config.password)).then(() => {
+                                        markInfo.images.push(markInfoConstruct(spaceConfig.name, imageAccessUrl, imgList[i].imgUrl))
+                                    })
+                                }).catch((error) => {
+                                    ctx.log.error(`[AutoBackup] WebDAV 备份指定的文件夹不存在且自动创建失败，${error.message}`)
+                                })
+                            }
+                            else{
+                                ctx.log.error(`[AutoBackup] WebDAV 备份失败，${error.message}`)
+                            }
+                        })
+                    }
+                    // 清空图片缓冲区
+                    if(imgList[i].bufferCopy != undefined){
+                        delete imgList[i].bufferCopy
+                    }
+                    if(imgList[i].base64ImageCopy != undefined){
+                        delete imgList[i].base64ImageCopy
+                    }
+                }
+                markInfo.total = markInfo.total + imgList.length
+                // 更新标记文件
+                fs.writeFileSync(userConfig.markFilepath, JSON.stringify(markInfo))
+            }
+        })
     }
 }
 
 
 /**
- * 部分uploader在上传图片后会清除图片数据, 因此选择在uploader前备份图片, 而在uploader后获取链接
+ * 备份图片数据
+ * 部分 uploader 上传完成后会清空图片数据
  * @param {*} ctx 
  * @returns 
  */
-const handle = async (ctx) => {
-    // // 加载配置文件
-    // const userConfig = ctx.getConfig('picgo-plugin-autobackup')
-
-    // if (!userConfig) {
-    //     throw new Error('请配置相关信息!')
-    // }   
-    // else{
-    //     /**
-    //      * 备份图片缓冲区，防止uploader上传完成后清空图片数据
-    //      */
-    //     var imgList = ctx.output
-    //     for(var i in imgList){
-    //         try{
-    //             if(imgList[i].buffer != undefined){
-    //                 imgList[i].bufferCopy = JSON.parse(JSON.stringify(imgList[i].buffer))
-    //             }
-    //             if(imgList[i].base64Image != undefined){
-    //                 imgList[i].base64ImageCopy = JSON.parse(JSON.stringify(imgList[i].base64Image))
-    //             }
-    //         }
-    //         catch(err){
-    //             ctx.log.error(`[Autobackup]图片${imgList[i].filename}数组拷贝失败:${err.message}`)
-    //         }
-    //     }
-    // }    
+const handle = async (ctx) => { 
+    var imgList = ctx.output
+    var date = new Date()
+    for(var i in imgList){
+        if(imgList[i].buffer != undefined){
+            imgList[i].bufferCopy = JSON.parse(JSON.stringify(imgList[i].buffer))
+        }
+        else if(imgList[i].base64Image != undefined){
+            imgList[i].base64ImageCopy = JSON.parse(JSON.stringify(imgList[i].base64Image))
+        }
+        else{
+            throw new Error('[AutoBackup] 无法备份，图片数据为空')
+        }
+        imgList[i].uniqueName = `${date.getFullYear()}${date.getMonth() + 1}${date.getDate()}${date.getHours()}${date.getMinutes()}${date.getSeconds()}${imgList[i].extname}`
+    }   
     return ctx
 }
 
 
+/**
+ * 备份空间 GUI 配置逻辑
+ * @param {插件配置} userConfig 
+ * @param {备份空间名称} spaceName 
+ * @returns 
+ */
 const spaceGuiMenuConstruct = (userConfig, spaceName) => {
     // 获取备份空间配置
     let spaceConfig = userConfig.spaces.find(s => s.name === spaceName)
