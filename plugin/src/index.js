@@ -285,74 +285,159 @@ const handle = async (ctx) => {
  */
 const spaceGuiMenuConstruct = (spacesConfig, spaceConfig) => {
     // 根据备份空间类型返回 GUI 逻辑
-    switch(spaceConfig.type.toLowerCase()){
-        case 'local': return localSpaceGuiMenuConstruct(spacesConfig, spaceConfig)
-        case 'webdav': return webDAVSpaceGuiMenuConstruct(spacesConfig, spaceConfig)
-        default: throw new Error(`[AutoBackup] 无效的备份空间类型: ${spaceConfig.type}`)
+    return {
+        label: `配置${spaceConfig.name}备份`,
+        async handle(ctx, guiApi){
+            switch(spaceConfig.type.toLowerCase()){
+                case 'local': await localSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig)
+                case 'webdav': await webDAVSpaceGuiMenu(ctx.guiApi, spacesConfig, spaceConfig)
+                default: throw new Error(`[AutoBackup] 无效的备份空间类型: ${spaceConfig.type}`)
+            }
+        }
     }
 }
 
 
 /**
- * 本地备份 GUI 配置逻辑
+ * 本地备份 GUI 逻辑
  * @param {插件配置} userConfig 
  * @param {备份空间配置} currentSpaceConfig 
- * @returns 
  */
-const localSpaceGuiMenuConstruct = (spacesConfig, spaceConfig) => {
-    return {
-        label: `配置${spaceConfig.name}备份`,
-        async handle (ctx, guiApi) {
-            // 备份空间名称
-            let spaceName = await guiApi.showInputBox({
-                title: '备份空间名称（键入 DELETE 以删除）',
-                placeholder: spaceConfig.name
-            })
-            // 删除当前备份空间
-            if(spaceName === 'DELETE'){
-                const deleteSpace = await guiApi.showMessageBox({
+async function localSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig){
+    // 加载全局设置
+    const userConfig = ctx.getConfig('picgo-plugin-autobackup')
+    // 备份空间名称
+    let spaceName = await guiApi.showInputBox({
+        title: '备份空间名称（键入 DELETE 以删除）',
+        placeholder: spaceConfig.name
+    })
+    // 删除当前备份空间
+    if(spaceName === 'DELETE'){
+        const deleteSpace = await guiApi.showMessageBox({
+            title: 'Autobackup',
+            message: `确定删除${spaceConfig.name}备份空间？`,
+            type: 'info',
+            buttons: ['Yes', 'No']
+        })
+        if(deleteSpace.result === 1){
+            return
+        }
+        // 当前备份空间若在使用中，则需要修改全局配置文件
+        if(userConfig.space === spaceConfig.name){
+            // 至少保留一个备份空间
+            if(spacesConfig.length === 1){
+                return guiApi.showMessageBox({
                     title: 'Autobackup',
-                    message: `删除 ${spaceConfig.name} 备份空间？`,
-                    type: 'info',
-                    buttons: ['Yes', 'No']
-                })
-                if(deleteSpace.result === 0){
-                    spacesConfig = spacesConfig.filter(s => s != spaceConfig)
-                    ctx.saveConfig({
-                        'picgo-plugin-autobackup-spaces': spacesConfig
-                    })
-                    await guiApi.showMessageBox({
-                        title: 'Autobackup',
-                        message: '删除成功',
-                        type: 'success',
-                        buttons: ['Yes']
-                    })  
-                    return
-                }
-                spaceName = spaceConfig.name
-            }
-            // 更新备份空间名称
-            if((spaceName != '') && (spacesConfig.find(s => s.name === spaceName) != undefined)){
-                await guiApi.showMessageBox({
-                    title: 'Autobackup',
-                    message: '备份空间命名重复',
+                    message: '删除失败，至少需要一个备份空间！',
                     type: 'error',
                     buttons: ['Yes']
-                })  
-                return
+                })
             }
-            spaceConfig.name = (spaceName != '') ? spaceName : spaceConfig.name
-            // 获取备份文件夹
-            let imageDirectory = await guiApi.showInputBox({
-                title: '请输入备份文件夹路径',
-                placeholder: spaceConfig.config.path
-            })
-            spaceConfig.config.path = (imageDirectory === '') ? spaceConfig.config.path : imageDirectory
-            // 修改配置文件
-            ctx.saveConfig({
-                'picgo-plugin-autobackup-spaces': spacesConfig
-            })
+            else{
+                userConfig.space = spacesConfig.filter(s => s.name != spaceConfig.name)[0].name
+                ctx.saveConfig({
+                    'picgo-plugin-autobackup': userConfig
+                })
+            }
         }
+        // 移除该备份空间涉及的所有图片
+        fs.readFile(userConfig.markFilepath, async function(err, data){
+            if(data){
+                // 更新 mark 文件
+                let markInfo =  JSON.parse(data.toString())
+                let removeImages = markInfo.images.filter(i => i.space === spaceConfig.name)
+                fs.writeFileSync(userConfig.markFilepath, JSON.stringify({
+                    total: markInfo.total - removeImages.length,
+                    images: markInfo.images.filter(i => i.space != spaceConfig.name)
+                }))
+                // 删除备份图片
+                for(var removeImageIndex in removeImages){
+                    fs.unlink(removeImages[removeImageIndex].path, (err) => {
+                        ctx.log.error(`[AutoBackup] 移除${spaceConfig.name}备份空间时，无法删除图片${removeImages[removeImageIndex].path}, ${err.message}`)
+                    })
+                }
+            }
+        })
+        // 更新备份空间设置
+        spacesConfig = spacesConfig.filter(s => s.name != spaceConfig.name)
+        ctx.saveConfig({
+            'picgo-plugin-autobackup-spaces': spacesConfig
+        })
+        return guiApi.showMessageBox({
+            title: 'Autobackup',
+            message: '删除成功',
+            type: 'info',
+            buttons: ['Yes']
+        }) 
+    }
+    // 检查备份空间名称是否合法
+    if((spaceName === '') && (spaceConfig.name === '')){
+        spacesConfig = spacesConfig.filter(s => s != spaceConfig)
+        ctx.saveConfig({
+            'picgo-plugin-autobackup-spaces': spacesConfig
+        })
+        return guiApi.showMessageBox({
+            title: 'Autobackup',
+            message: '备份空间名称不能为空',
+            type: 'error',
+            buttons: ['Yes']
+        }) 
+    } 
+    // 检查备份空间名称是否重复
+    if((spaceName != '') && (spacesConfig.find(s => s.name === spaceName) != undefined)){
+        return guiApi.showMessageBox({
+            title: 'Autobackup',
+            message: '备份空间命名重复！',
+            type: 'error',
+            buttons: ['Yes']
+        })  
+    }
+    // 备份文件夹
+    let imageDirectory = await guiApi.showInputBox({
+        title: '请输入备份文件夹路径',
+        placeholder: spaceConfig.config.path
+    })
+    spaceConfig.config.path = (imageDirectory != '') ? imageDirectory : spaceConfig.config.path
+    if(spaceConfig.config.path === ''){
+        return guiApi.showMessageBox({
+            title: 'Autobackup',
+            message: '文件夹路径不能为空！',
+            type: 'error',
+            buttons: ['Yes']
+        })  
+    }
+    // 更新 Mark 文件
+    if(spaceName != ''){
+        fs.readFile(userConfig.markFilepath, async function(err, data){
+            if(err){
+                return guiApi.showMessageBox({
+                    title: 'Autobackup',
+                    message: '修改失败，Mark 文件损坏！',
+                    type: 'error',
+                    buttons: ['Yes']
+                }) 
+            }
+            if(data){
+                // 更新 mark 文件
+                let markInfo =  JSON.parse(data.toString())
+                let relevantImages = markInfo.images.filter(i => i.space === spaceConfig.name)
+                for(var relevantImagesIndex in relevantImages){
+                    relevantImages[relevantImagesIndex].space = spaceName
+                }
+                fs.writeFileSync(userConfig.markFilepath, JSON.stringify(markInfo))
+                // 修改配置文件
+                spaceConfig.name = (spaceName != '') ? spaceName : spaceConfig.name
+                ctx.saveConfig({
+                    'picgo-plugin-autobackup-spaces': spacesConfig
+                })
+                return guiApi.showMessageBox({
+                    title: 'Autobackup',
+                    message: `完成`,
+                    type: 'info',
+                    buttons: ['Yes']
+                })
+            }
+        })
     }
 }
 
@@ -363,91 +448,136 @@ const localSpaceGuiMenuConstruct = (spacesConfig, spaceConfig) => {
  * @param {备份空间配置} currentSpaceConfig 
  * @returns 
  */
-const webDAVSpaceGuiMenuConstruct = (spacesConfig, spaceConfig) => {
-    return {
-        label: `配置${spaceConfig.name}备份`,
-        async handle (ctx, guiApi){
-            // 备份空间名称
-            let spaceName = await guiApi.showInputBox({
-                title: '备份空间名称（键入 DELETE 以删除）',
-                placeholder: spaceConfig.name
-            })
-            // 删除当前备份空间
-            if(spaceName === 'DELETE'){
-                const deleteSpace = await guiApi.showMessageBox({
-                    title: 'Autobackup',
-                    message: `删除 ${spaceConfig.name} 备份空间？`,
-                    type: 'info',
-                    buttons: ['Yes', 'No']
-                })
-                if(deleteSpace.result === 0){
-                    spacesConfig = spacesConfig.filter(s => s != spaceConfig)
-                    ctx.saveConfig({
-                        'picgo-plugin-autobackup-spaces': spacesConfig
-                    })
-                    await guiApi.showMessageBox({
-                        title: 'Autobackup',
-                        message: '删除成功',
-                        type: 'success',
-                        buttons: ['Yes']
-                    })  
-                    return
-                }
-                spaceName = spaceConfig.name
-            }
-            // 更新备份空间名称
-            if((spaceName != '') && (spacesConfig.find(s => s.name === spaceName) != undefined)){
-                await guiApi.showMessageBox({
-                    title: 'Autobackup',
-                    message: '备份空间命名重复',
-                    type: 'error',
-                    buttons: ['Yes']
-                })  
-                return
-            }
-            spaceConfig.name = (spaceName != '') ? spaceName : spaceConfig.name
-            // 访问接口
-            // 坚果云：https://dav.jianguoyun.com/dav/
-            // 局域网自建：{http or https}://{ip}:{port}
-            // 其它
-            let api = await guiApi.showInputBox({
-                title: '访问接口（一般以 http/https 开头）',
-                placeholder: spaceConfig.config.api
-            })
-            spaceConfig.config.api = (api === '') ? spaceConfig.config.api : api;
-            // 账号
-            // 坚果云为登录邮箱
-            let username = await guiApi.showInputBox({
-                title: '账号',
-                placeholder: spaceConfig.config.username
-            })
-            spaceConfig.config.username = (username === '') ? spaceConfig.config.username : username;
-            // 密码
-            // 坚果云为应用密码
-            let password = await guiApi.showInputBox({
-                title: '密码',
-                placeholder: spaceConfig.config.password
-            })
-            spaceConfig.config.password = (password === '') ? spaceConfig.config.password : password;
-            // 备份文件夹
-            let imageDirectory = await guiApi.showInputBox({
-                title: "备份文件夹（多层请使用 '/' 分隔符）",
-                placeholder: spaceConfig.config.path
-            })
-            spaceConfig.config.path = (imageDirectory === '') ? spaceConfig.config.path : imageDirectory
-            // 修改配置文件
+async function webDAVSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig){
+    // 备份空间名称
+    let spaceName = await guiApi.showInputBox({
+        title: '备份空间名称（键入 DELETE 以删除）',
+        placeholder: spaceConfig.name
+    })
+    // 删除当前备份空间
+    if(spaceName === 'DELETE'){
+        const deleteSpace = await guiApi.showMessageBox({
+            title: 'Autobackup',
+            message: `删除 ${spaceConfig.name} 备份空间？`,
+            type: 'info',
+            buttons: ['是', '否']
+        })
+        if(deleteSpace.result === 0){
+            spacesConfig = spacesConfig.filter(s => s != spaceConfig)
             ctx.saveConfig({
                 'picgo-plugin-autobackup-spaces': spacesConfig
             })
+            await guiApi.showMessageBox({
+                title: 'Autobackup',
+                message: '删除成功',
+                type: 'info',
+                buttons: ['确定']
+            })  
+            return
         }
+        spaceName = spaceConfig.name
+    }
+    // 更新备份空间名称
+    if((spaceName != '') && (spacesConfig.find(s => s.name === spaceName) != undefined)){
+        await guiApi.showMessageBox({
+            title: 'Autobackup',
+            message: '备份空间命名重复',
+            type: 'error',
+            buttons: ['确定']
+        })  
+        return
+    }
+    spaceConfig.name = (spaceName != '') ? spaceName : spaceConfig.name
+    // 访问接口
+    // 坚果云：https://dav.jianguoyun.com/dav/
+    // 局域网自建：{http or https}://{ip}:{port}
+    // 其它
+    let api = await guiApi.showInputBox({
+        title: '访问接口（一般以 http/https 开头）',
+        placeholder: spaceConfig.config.api
+    })
+    spaceConfig.config.api = (api === '') ? spaceConfig.config.api : api;
+    // 账号
+    // 坚果云为登录邮箱
+    let username = await guiApi.showInputBox({
+        title: '账号',
+        placeholder: spaceConfig.config.username
+    })
+    spaceConfig.config.username = (username === '') ? spaceConfig.config.username : username;
+    // 密码
+    // 坚果云为应用密码
+    let password = await guiApi.showInputBox({
+        title: '密码',
+        placeholder: spaceConfig.config.password
+    })
+    spaceConfig.config.password = (password === '') ? spaceConfig.config.password : password;
+    // 备份文件夹
+    let imageDirectory = await guiApi.showInputBox({
+        title: "备份文件夹（多层请使用 '/' 分隔符）",
+        placeholder: spaceConfig.config.path
+    })
+    spaceConfig.config.path = (imageDirectory === '') ? spaceConfig.config.path : imageDirectory
+    // 修改配置文件
+    if((spaceConfig.name != '') && (spaceConfig.config.api != '') && 
+       (spaceConfig.config.username != '') && (spaceConfig.config.password != '') &&
+       (spaceConfig.path != '')){
+        ctx.saveConfig({
+            'picgo-plugin-autobackup-spaces': spacesConfig
+        })
+        await guiApi.showMessageBox({
+            title: 'Autobackup',
+            message: `完成`,
+            type: 'info',
+            buttons: ['确定']
+        })
     }
 }
 
 
-const addSpaceGuiMenuConstruct = () => {
+/**
+ * 新增备份空间
+ * @param {备份空间设置} spacesConfig 
+ * @returns 
+ */
+const addSpaceGuiMenuConstruct = (spacesConfig) => {
     return {
-        label: `创建`,
+        label: `新增备份空间`,
         async handle (ctx, guiApi){
+            // 选择备份空间类型
+            const spaceType = await guiApi.showMessageBox({
+                title: 'Autobackup',
+                message: `备份空间类型`,
+                type: 'info',
+                buttons: ['local', 'webdav', '取消']
+            })
+            switch(spaceType.result){
+                case 0: {
+                    let spaceConfig = {
+                        name: '',
+                        type: 'local',
+                        config: {
+                            'path': ''
+                        }
+                    }
+                    spacesConfig.push(spaceConfig)
+                    return localSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig)
+                }
+                case 1: {
+                    let spaceConfig = {
+                        name: '',
+                        type: 'webdav',
+                        config: {
+                            'api': 'https://',
+                            'username': '',
+                            'password': '',
+                            'path': ''
+                        }
+                    }
+                    spacesConfig.push(spaceConfig)
+                    return webDAVSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig)
+                }
+                default: return
+            }
         }
     }
 }
@@ -459,11 +589,12 @@ const addSpaceGuiMenuConstruct = () => {
  * @returns 
  */
 const guiMenu = (ctx) => {
-    let guiMenus = []
-    let spacesConfig = ctx.getConfig('picgo-plugin-autobackup-spaces')
+    const guiMenus = []
+    const spacesConfig = ctx.getConfig('picgo-plugin-autobackup-spaces')
     for(var i in spacesConfig){
         guiMenus.push(spaceGuiMenuConstruct(spacesConfig, spacesConfig[i]))
     }
+    guiMenus.push(addSpaceGuiMenuConstruct(spacesConfig))
     return guiMenus
 }
 
@@ -472,45 +603,40 @@ module.exports = (ctx) => {
     const register = () => {
         ctx.log.info('[AutoBackup] 加载中...')
         // 检查全局配置
-        let userConfig = ctx.getConfig('picgo-plugin-autobackup')
-        if(!userConfig){
-            userConfig = {
-                space: 'Local',
-                markFilepath: 'Autobackup/mark.json'
-            }
+        if(!ctx.getConfig('picgo-plugin-autobackup')){
             ctx.saveConfig({
-                'picgo-plugin-autobackup': userConfig
+                'picgo-plugin-autobackup': {
+                    space: 'Local',
+                    markFilepath: 'Autobackup/mark.json'
+                }
             })
         }
         // 兼容旧版本设置
-        let spacesConfig = ctx.getConfig('picgo-plugin-autobackup-spaces')
-        if(!spacesConfig){
+        if(!ctx.getConfig('picgo-plugin-autobackup-spaces')){
             const oldSettings = ctx.getConfig('picgo-plugin-autobackup-settings')
             if(!oldSettings){
                 throw new Error('[AutoBackup] 配置文件损坏，未找到备份空间配置信息')
             }
-            // 迁移设置
-            spacesConfig = [
-                {
-                    name: 'Local',
-                    type: 'local',
-                    config: {
-                        path: oldSettings.local.imagePath
-                    }
-                },
-                {
-                    name: 'NutStore',
-                    type: 'webdav',
-                    config: {
-                        api: 'https://dav.jianguoyun.com/dav/',
-                        username: oldSettings.nutstore.username,
-                        password: oldSettings.nutstore.password,
-                        path: oldSettings.nutstore.imagePath
-                    }
-                }
-            ]
             ctx.saveConfig({
-                'picgo-plugin-autobackup-spaces': spacesConfig
+                'picgo-plugin-autobackup-spaces': [
+                    {
+                        name: 'Local',
+                        type: 'local',
+                        config: {
+                            path: oldSettings.local.imagePath
+                        }
+                    },
+                    {
+                        name: 'NutStore',
+                        type: 'webdav',
+                        config: {
+                            api: 'https://dav.jianguoyun.com/dav/',
+                            username: oldSettings.nutstore.username,
+                            password: oldSettings.nutstore.password,
+                            path: oldSettings.nutstore.imagePath
+                        }
+                    }
+                ]
             })
         }
         // 注册插件
