@@ -8,4 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = Recovery.Cmd
-build_property.ProjectDir = e:\Project\picgo-plugin-autobackup\recovery\recovery.cmd\
+build_property.ProjectDir = D:\Project\picgo-plugin-autobackup\recovery\recovery.cmd\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 

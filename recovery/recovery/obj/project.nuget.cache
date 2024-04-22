@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "9AKpy3XO0iEMbFuxmnVSaCT+Jom0Nfe0sIQyZ49wfIGP4szxHnKUkvbPfqM8F7GHXv60r6IbgTiMk6nCoHYfyA==",
+  "dgSpecHash": "/3fb4lkCK9qoA6q2/ysZKI4sYLdYaJcv8OjbAzZtN0v+zjd8f0De7UXwu92VpY7PGZx58C8Ptf86sviNu9cDRg==",
   "success": true,
-  "projectFilePath": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery\\Recovery.csproj",
+  "projectFilePath": "D:\\Project\\picgo-plugin-autobackup\\recovery\\recovery\\Recovery.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\26892\\.nuget\\packages\\handycontrol\\3.4.0\\handycontrol.3.4.0.nupkg.sha512",
     "C:\\Users\\26892\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",

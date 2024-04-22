@@ -28,19 +28,19 @@
   },
   "packageFolders": {
     "C:\\Users\\26892\\.nuget\\packages\\": {},
-    "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.cmd\\recovery.cmd.csproj",
-      "projectName": "recovery.cmd",
-      "projectPath": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.cmd\\recovery.cmd.csproj",
+      "projectUniqueName": "D:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.cmd\\Recovery.Cmd.csproj",
+      "projectName": "Recovery.Cmd",
+      "projectPath": "D:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.cmd\\Recovery.Cmd.csproj",
       "packagesPath": "C:\\Users\\26892\\.nuget\\packages\\",
-      "outputPath": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.cmd\\obj\\",
+      "outputPath": "D:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.cmd\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
-        "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
         "C:\\Users\\26892\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -52,14 +52,15 @@
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+        "C:\\Program Files\\dotnet\\library-packs": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
         "net6.0": {
           "targetAlias": "net6.0",
           "projectReferences": {
-            "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.core\\Recovery.Core.csproj": {
-              "projectPath": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.core\\Recovery.Core.csproj"
+            "D:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.core\\Recovery.Core.csproj": {
+              "projectPath": "D:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.core\\Recovery.Core.csproj"
             }
           }
         }
@@ -68,6 +69,11 @@
         "warnAsError": [
           "NU1605"
         ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
       }
     },
     "frameworks": {
@@ -89,7 +95,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.400\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200\\RuntimeIdentifierGraph.json"
       }
     }
   }

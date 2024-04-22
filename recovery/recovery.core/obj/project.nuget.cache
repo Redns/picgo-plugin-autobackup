@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "VARgMGXa8SzOY1XKAf6wi3xFl24kSSMYHvau+nqvOLFU40GyautMFvlwakJtaDJyqx36Cw8NDE4hqd5Ij1sQwg==",
+  "dgSpecHash": "wsMMigS34rREs6TFHPGbeZv/qKg/LRHE1pWTab76WSf88J0oxGiHkdKxkPhnWkbAJsuA3tKa5hOsI7NCOGMnRQ==",
   "success": true,
-  "projectFilePath": "E:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.core\\Recovery.Core.csproj",
+  "projectFilePath": "D:\\Project\\picgo-plugin-autobackup\\recovery\\recovery.core\\Recovery.Core.csproj",
   "expectedPackageFiles": [],
   "logs": []
 }

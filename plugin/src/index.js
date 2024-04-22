@@ -308,8 +308,12 @@ const spaceGuiMenuConstruct = (spacesConfig, spaceConfig) => {
         label: `配置${spaceConfig.name}备份`,
         async handle(ctx, guiApi){
             switch(spaceConfig.type.toLowerCase()){
-                case 'local': await localSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig)
-                case 'webdav': await webDAVSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig)
+                case 'local': 
+                    await localSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig) 
+                    return
+                case 'webdav': 
+                    await webDAVSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig)
+                    return
                 default: throw new Error(`[AutoBackup] 无效的备份空间类型: ${spaceConfig.type}`)
             }
         }
@@ -432,14 +436,43 @@ async function localSpaceGuiMenu(ctx, guiApi, spacesConfig, spaceConfig){
     if(spaceName != ''){
         fs.readFile(userConfig.markFilepath, async function(err, data){
             if(err){
+                if(err.code === "ENOENT"){
+                    // 文件不存在
+                    // 判断设置的 mark 文件路径是否规范
+                    if(!userConfig.markFilepath.endsWith('mark.json')){
+                        userConfig.markFilepath = path.join(userConfig.markFilepath, 'mark.json')
+                        ctx.saveConfig({
+                            'picgo-plugin-autobackup': userConfig
+                        })
+                    }
+                    // 创建 mark 文件
+                    writeFileRecursive(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", (err) => {
+                        if(err) ctx.log.info(`[AutoBackup] mark.json 创建失败，${err.message}`)
+                    })
+                }
+                else if(err.code === "EISDIR"){
+                    // 设置的 mark 文件路径为文件夹
+                    userConfig.markFilepath = path.join(userConfig.markFilepath, 'mark.json')
+                    ctx.saveConfig({
+                        'picgo-plugin-autobackup': userConfig
+                    })
+                    // 创建 mark 文件
+                    writeFileRecursive(userConfig.markFilepath, "{\"total\":0,\"images\":[]}", (err) => {
+                        if(err) ctx.log.error(`[AutoBackup] mark.json 创建失败，${err.message}`)
+                    })
+                }
+                else{
+                    ctx.log.error(`[Autobackup] mark.json 加载失败，${err.message}`)
+                }
+
                 return guiApi.showMessageBox({
                     title: 'Autobackup',
-                    message: '修改失败，Mark 文件损坏！',
+                    message: 'Mark 文件不存在或损坏！',
                     type: 'error',
                     buttons: ['Yes']
                 }) 
             }
-            if(data){
+            else if(data){
                 // 更新 mark 文件
                 let markInfo =  JSON.parse(data.toString())
                 let relevantImages = markInfo.images.filter(i => i.space === spaceConfig.name)
@@ -738,8 +771,8 @@ const guiMenu = (ctx) => {
 
 module.exports = (ctx) => {
     const register = () => {
-        ctx.log.info('[AutoBackup] 加载中...')
-        // 检查全局配置
+        ctx.log.info('[AutoBackup] 插件加载中...')
+        /* 检查全局配置 */
         if(!ctx.getConfig('picgo-plugin-autobackup')){
             ctx.saveConfig({
                 'picgo-plugin-autobackup': {
@@ -748,35 +781,58 @@ module.exports = (ctx) => {
                 }
             })
         }
-        // 兼容旧版本设置
+        /* 备份空间设置 */ 
         if(!ctx.getConfig('picgo-plugin-autobackup-spaces')){
+            /* 迁移旧版本设置 */
             const oldSettings = ctx.getConfig('picgo-plugin-autobackup-settings')
-            if(!oldSettings){
-                throw new Error('[AutoBackup] 配置文件损坏，未找到备份空间配置信息')
+            if(oldSettings){
+                ctx.saveConfig({
+                    'picgo-plugin-autobackup-spaces': [
+                        {
+                            name: 'Local',
+                            type: 'local',
+                            config: {
+                                path: oldSettings.local.imagePath
+                            }
+                        },
+                        {
+                            name: 'NutStore',
+                            type: 'webdav',
+                            config: {
+                                api: 'https://dav.jianguoyun.com/dav/',
+                                username: oldSettings.nutstore.username,
+                                password: oldSettings.nutstore.password,
+                                path: oldSettings.nutstore.imagePath
+                            }
+                        }
+                    ]
+                })
             }
-            ctx.saveConfig({
-                'picgo-plugin-autobackup-spaces': [
-                    {
-                        name: 'Local',
-                        type: 'local',
-                        config: {
-                            path: oldSettings.local.imagePath
+            else{
+                ctx.saveConfig({
+                    'picgo-plugin-autobackup-spaces': [
+                        {
+                            name: 'Local',
+                            type: 'local',
+                            config: {
+                                path: ''
+                            }
+                        },
+                        {
+                            name: 'NutStore',
+                            type: 'webdav',
+                            config: {
+                                api: 'https://dav.jianguoyun.com/dav/',
+                                username: 'xxx@xxx.com',
+                                password: 'xxxxx',
+                                path: ''
+                            }
                         }
-                    },
-                    {
-                        name: 'NutStore',
-                        type: 'webdav',
-                        config: {
-                            api: 'https://dav.jianguoyun.com/dav/',
-                            username: oldSettings.nutstore.username,
-                            password: oldSettings.nutstore.password,
-                            path: oldSettings.nutstore.imagePath
-                        }
-                    }
-                ]
-            })
+                    ]
+                })
+            }
         }
-        // 注册插件
+        /* 注册插件 */
         ctx.helper.beforeUploadPlugins.register('autobackup', {
             handle,
             config: pluginConfig
